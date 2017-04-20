@@ -24,6 +24,7 @@
     
     
     UITabBarController *tvc = [[UITabBarController alloc] init];
+    tvc.tabBar.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.7];
     
     MainViewController *main = [[MainViewController alloc] init];
     main.tabBarItem.image = [UIImage imageNamed:@"tab_home_icon"];
@@ -44,6 +45,7 @@
     
     // 3.显示窗口
     [self.window makeKeyAndVisible];
+    
     
     return YES;
 }

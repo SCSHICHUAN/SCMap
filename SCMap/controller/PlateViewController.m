@@ -7,7 +7,6 @@
 //
 
 #import "PlateViewController.h"
-#import "ViewController.h"
 @interface PlateViewController ()
 
 @end
@@ -47,24 +46,8 @@
 {
     NSLog(@"%s",__func__);
     
-    ViewController *ddd = [[ViewController alloc] init];
-    [self.navigationController pushViewController:ddd animated:YES];
-   
-    
-    
-    
-    
+
 }
-- (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated{
-    
-    if (self.childViewControllers.count > 0) {
-        
-        /* 自动显示和隐藏tabbar */
-        viewController.hidesBottomBarWhenPushed = YES;
-        
-    }
-    
-  
-}
+
 
 @end
