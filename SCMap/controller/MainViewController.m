@@ -22,7 +22,7 @@ typedef enum{
 
 
 
-@interface MainViewController ()<CLLocationManagerDelegate,MKMapViewDelegate>
+@interface MainViewController ()<CLLocationManagerDelegate,MKMapViewDelegate,UITableViewDelegate,UITableViewDataSource>
 {
    MKUserLocation *_userLocation;
     
@@ -36,6 +36,8 @@ typedef enum{
 @property(nonatomic,strong)UIView *navigationHeadView;
 @property(nonatomic,strong)CLGeocoder *geocoder;//地理编码工具
 @property(nonatomic,strong)UILabel *headLabel;
+@property(nonatomic,strong)UITableView *tableView;
+@property(nonatomic,strong)NSMutableArray *nameArray;
 @end
 
 @implementation MainViewController
@@ -83,8 +85,23 @@ typedef enum{
     }
     return _headLabel;
 }
-
-
+-(UITableView *)tableView
+{
+    if (_tableView == nil) {
+        _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height-64)];
+        _tableView.backgroundView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.7];
+        _tableView.delegate = self;
+        _tableView.dataSource = self;
+    }
+    return _tableView;
+}
+-(NSMutableArray *)nameArray
+{
+    if (_nameArray == nil) {
+        _nameArray = [NSMutableArray array];
+    }
+    return _nameArray;
+}
 
 
 
@@ -125,7 +142,7 @@ typedef enum{
         [_locationManager requestAlwaysAuthorization];
     }
     self.locationManager.delegate = self;
-    self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;  //设置最高的精度
+    self.locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;  //设置最高的精度
     [self.locationManager startUpdatingLocation];  //开始定位
     [self.view addSubview:self.button1];
     
@@ -156,9 +173,11 @@ typedef enum{
 
     
 }
+
+//定位当前的位置
 -(void)gprsUser
 {
-    
+  
     CLLocationCoordinate2D loc = [_userLocation coordinate];
     //放大地图到自身的经纬度位置。
     MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(loc, 250, 250);
@@ -182,15 +201,19 @@ typedef enum{
      ^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
          
          if (!error) {
-             
+             [self.nameArray removeAllObjects];
              
              CLPlacemark *placemark = placemarks.firstObject;
              
              self.headLabel.text = placemark.subLocality;
              
+             [self.nameArray addObject:placemark.locality];
+             [self.nameArray addObject:placemark.subLocality];
+             [self.nameArray addObject:placemark.thoroughfare];
+             [self.nameArray addObject:placemark.name];
+           
              
              NSLog(@"成功 %@",[placemark class]);
-             
              NSLog(@"地理名称%@",placemark.name);
              NSLog(@"街道名%@",placemark.thoroughfare);
              NSLog(@"国家%@",placemark.country);
@@ -199,6 +222,10 @@ typedef enum{
              
              NSLog(@"地址%@",placemark.addressDictionary);
              NSLog(@"=======\n");
+             
+             [self.tableView reloadData];
+             [self.view addSubview:self.tableView];
+             [self.view bringSubviewToFront:self.button1];
              
          }else if (error) {
              
@@ -209,5 +236,43 @@ typedef enum{
      }];
 
 }
+
+
+#pragma mark - UITableViewDataSource
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    
+    self.tableView.frame = CGRectMake(0, 65, kScreenWith, self.nameArray.count*44);
+    return self.nameArray.count;
+}
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *cellIdentfer = @"cellIdentfer";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentfer];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentfer];
+        cell.textLabel.text = self.nameArray[indexPath.row];
+        cell.backgroundColor = [UIColor clearColor];
+        NSLog(@"self.nameArray[indexPath.row]= [ %@ ]",self.nameArray[indexPath.row]);
+    }
+    return cell;
+}
+
+#pragma mark - UITableViewDelegate
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSLog(@"你点击了第行 = %ld",(long)indexPath.row);
+}
+
+
+
+
+
+
+
+
+
+
+
 
 @end
