@@ -12,6 +12,7 @@
 #import <MapKit/MapKit.h>
 #import "LocalNameTableViewCell.h"
 #import "YYAnnotation.h"
+#import "PointModel.h"
 
 #define kScreenWith ([UIScreen mainScreen].bounds.size.width)
 #define kScreenHeight ([UIScreen mainScreen].bounds.size.height)
@@ -37,11 +38,14 @@ typedef enum{
 @property(strong,nonatomic)MKMapView *mapView;
 @property(nonatomic,strong)CLLocationManager *locationManager;
 @property(nonatomic,strong)UIButton *button1;
+@property(nonatomic,strong)UIButton *button2;
 @property(nonatomic,strong)UIView *navigationHeadView;
 @property(nonatomic,strong)CLGeocoder *geocoder;//地理编码工具
 @property(nonatomic,strong)UILabel *headLabel;
 @property(nonatomic,strong)UITableView *tableView;
 @property(nonatomic,strong)NSMutableArray *nameArray;
+@property(nonatomic,strong)NSMutableArray *pointArray;
+@property(strong,nonatomic)MKDirections *directs;//用于发送请求给服务器，获取规划好后的路线。
 @end
 
 @implementation MainViewController
@@ -63,6 +67,16 @@ typedef enum{
         [_button1 addTarget:self action:@selector(gprsUser) forControlEvents:UIControlEventTouchUpInside];
     }
     return _button1;
+}
+-(UIButton *)button2
+{
+    if (_button2 == nil) {
+        _button2 = [UIButton buttonWithType:UIButtonTypeSystem];
+        [_button2 setImage:[UIImage imageNamed: @"road29"] forState:UIControlStateNormal];
+        _button2.frame = CGRectMake(kScreenWith - 40,64+5+10+35,35, 35);
+        [_button2 addTarget:self action:@selector(gprsUser2) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _button2;
 }
 -(UIView *)navigationHeadView
 {
@@ -101,10 +115,6 @@ typedef enum{
         swipwe.direction = UISwipeGestureRecognizerDirectionLeft;
         [self.tableView addGestureRecognizer:swipwe];
         
-        
-        
-        
-        
     }
     return _tableView;
 }
@@ -115,6 +125,19 @@ typedef enum{
     }
     return _nameArray;
 }
+-(NSMutableArray *)pointArray
+{
+    if (_pointArray == nil) {
+        _pointArray = [NSMutableArray array];
+    }
+    return _pointArray;
+}
+
+
+
+
+
+
 
 -(void)swiweLift:(UISwipeGestureRecognizer *)swipe
 {
@@ -137,6 +160,7 @@ typedef enum{
 {
     [self.view addSubview:self.tableView];
     [self.view bringSubviewToFront:self.button1];
+    [self.view bringSubviewToFront:self.button2];
     [self.view bringSubviewToFront:self.navigationHeadView];
     double higeht = self.tableView.bounds.size.height;
     self.tableView.frame = CGRectMake(0,65, kScreenWith, 0);
@@ -149,6 +173,14 @@ typedef enum{
         
     } completion:nil];
 }
+
+-(void)gprsUser2
+{
+    [self.mapView removeOverlays:self.mapView.overlays];//移除划的线路
+    [self line];
+}
+
+
 
 
 
@@ -189,6 +221,7 @@ typedef enum{
     self.locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;  //设置最高的精度
     [self.locationManager startUpdatingLocation];  //开始定位
     [self.view addSubview:self.button1];
+    [self.view addSubview:self.button2];
     
     [self performSelector:@selector(gprsUser) withObject:nil afterDelay:2.0];
     [self.view addSubview:self.navigationHeadView];
@@ -219,6 +252,12 @@ typedef enum{
         annotation.coordinate=location;
         [_mapView addAnnotation:annotation];
 
+        
+        
+        PointModel *model = [[PointModel alloc] initWithDict:@{@"logitude":[NSString stringWithFormat:@"%f",touchMapCoordinate.longitude],@"latitude":[NSString stringWithFormat:@"%f",touchMapCoordinate.latitude]}];
+        
+        [self.pointArray addObject:model];
+        
         
        
     }
@@ -252,6 +291,8 @@ typedef enum{
 //定位当前的位置
 -(void)gprsUser
 {
+    
+    
     [self.tableView removeFromSuperview];
     
     CLLocationCoordinate2D loc = [_userLocation coordinate];
@@ -307,6 +348,8 @@ typedef enum{
              [self.tableView reloadData];
              [self.view addSubview:self.tableView];
              [self.view bringSubviewToFront:self.button1];
+             [self.view bringSubviewToFront:self.button2];
+             
              [self showTabView];
          }else if (error) {
              
@@ -317,6 +360,139 @@ typedef enum{
      }];
 
 }
+
+
+-(void)line
+{
+    
+    CLLocationCoordinate2D loction1,loction2;
+    
+    PointModel *model1,*model2;
+    
+    model1 = self.pointArray[self.pointArray.count-2];
+    model2 = self.pointArray.lastObject;
+    
+    loction1.latitude = [model1.latitude floatValue];
+    loction1.longitude = [model1.logitude floatValue];
+    
+    
+    NSLog(@"loction1.latitude= [ %f ]",loction1.latitude);
+    NSLog(@"loction2.latitude= [ %f ]",loction2.latitude);
+    
+    
+    loction2.latitude = [model2.latitude floatValue];
+    loction2.longitude = [model2.logitude floatValue];
+    
+    CLLocation *local1 = [[CLLocation alloc] initWithLatitude:loction1.latitude longitude:loction1.longitude];
+    CLLocation *local2 = [[CLLocation alloc] initWithLatitude:loction2.latitude longitude:loction2.longitude];
+    
+    
+    
+    
+    [_geocoder reverseGeocodeLocation:local2 completionHandler:
+     ^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
+         
+         
+         
+         MKPlacemark *placemark = [[MKPlacemark alloc]initWithPlacemark:placemarks.lastObject];
+         //intrItem可以理解为地图上的一个点
+         MKMapItem *intrItem = [[MKMapItem alloc]initWithPlacemark:placemark];
+         
+         //        添加一个小别针到地图上
+         YYAnnotation *anno = [[YYAnnotation alloc]init];
+         anno.coordinate = intrItem.placemark.location.coordinate;
+         //        [self.mapView addAnnotation:anno];
+         
+         // 让地图跳转到起点所在的区域
+         MKCoordinateRegion region = MKCoordinateRegionMake(intrItem.placemark.location.coordinate, MKCoordinateSpanMake(0.05, 0.05));
+         [self.mapView setRegion:region];
+         
+         //创建终点
+         [_geocoder  reverseGeocodeLocation:local1 completionHandler:
+          ^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
+             
+             //destItem可以理解为地图上的一个点
+             MKMapItem *destItem = [[MKMapItem alloc]initWithPlacemark:[[MKPlacemark alloc]initWithPlacemark:[placemarks lastObject]]];
+             
+             
+             //        添加一个小别针到地图上
+             YYAnnotation *anno = [[YYAnnotation alloc]init];
+             anno.coordinate = destItem.placemark.location.coordinate;
+             //            [self.mapView addAnnotation:anno];
+             
+             //调用下面方法发送请求
+             [self moveWith:intrItem toDestination:destItem];
+         }];
+     }];
+
+}
+
+//提供两个点，在地图上进行规划的方法
+-(void)moveWith:(MKMapItem *)formPlce toDestination:(MKMapItem *)endPlace{
+    
+    //    创建请求体
+    // 创建请求体 (起点与终点)
+    MKDirectionsRequest *request = [[MKDirectionsRequest alloc] init];
+    
+    request.source = formPlce;
+    request.destination = endPlace;
+    
+    self.directs = [[MKDirections alloc]initWithRequest:request];
+    
+    // 计算路线规划信息 (向服务器发请求)
+    [self.directs calculateDirectionsWithCompletionHandler:^(MKDirectionsResponse * _Nullable response, NSError * _Nullable error) {
+        
+        
+        [response.routes enumerateObjectsUsingBlock:^(MKRoute * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            
+            
+            
+            NSLog(@"obj.name= [ %@ ]",obj.name);
+            NSLog(@"obj.distance= [ %f ]",obj.distance/1000);
+            NSLog(@"obj.expectedTravelTime= [ %f ]",obj.expectedTravelTime/3600);
+            NSLog(@"obj.name= [ %@ ]",obj.polyline);
+            
+            
+        }];
+        
+        //获取到所有路线
+        NSArray <MKRoute *> *routesArray = response.routes;
+        
+        //取出最后一条路线
+        MKRoute *rute = routesArray.lastObject;
+        
+        //路线中的每一步
+        NSArray <MKRouteStep *>*stepsArray = rute.steps;
+        
+        //遍历
+        for (MKRouteStep *step in stepsArray) {
+            
+            [self.mapView addOverlay:step.polyline];
+        }
+        // 收响应结果 MKDirectionsResponse
+        // MKRoute 表示的一条完整的路线信息 (从起点到终点) (包含多个步骤)
+    }];
+    
+}
+
+// 返回指定的遮盖模型所对应的遮盖视图, renderer-渲染
+- (MKOverlayRenderer *)mapView:(MKMapView *)mapView rendererForOverlay:(id<MKOverlay>)overlay
+{
+    // 判断类型
+    if ([overlay isKindOfClass:[MKPolyline class]]) {
+        // 针对线段, 系统有提供好的遮盖视图
+        MKPolylineRenderer *render = [[MKPolylineRenderer alloc] initWithPolyline:overlay];
+
+        // 配置，遮盖线的颜色
+        render.lineWidth = 6;
+        render.strokeColor =  [UIColor colorWithRed:64/255.0 green:152/255.0 blue:246/255.0 alpha:0.9];
+
+        return render;
+    }
+    // 返回nil, 是没有默认效果
+    return nil;
+}
+
 
 
 
