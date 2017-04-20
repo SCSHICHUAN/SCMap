@@ -28,7 +28,7 @@ typedef enum{
 {
    MKUserLocation *_userLocation;
    CLLocation *_cLocation;
-    int   nameCount;
+    
     
 }
 @property(nonatomic,assign)Gprs_Typ  gprs_Typ;
@@ -93,7 +93,7 @@ typedef enum{
 {
     if (_tableView == nil) {
         _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height-64)];
-        _tableView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.7];
+        _tableView.backgroundColor = [UIColor clearColor];
         _tableView.delegate = self;
         _tableView.dataSource = self;
         
@@ -199,7 +199,7 @@ typedef enum{
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showTabView)];
     [self.navigationHeadView addGestureRecognizer:tap];
     
-    nameCount = 0;
+   
 }
 
 - (void)tapPress:(UILongPressGestureRecognizer *)gestureRecognizer
@@ -285,9 +285,9 @@ typedef enum{
              
              self.headLabel.text = placemark.subLocality;
             
-             nameCount +=1;
              
-             NSString *nameCountSer = [NSString stringWithFormat:@"第%d条",nameCount];
+             
+//             NSString *nameCountSer = [NSString stringWithFormat:@"第%d条",nameCount];
              
              
              
@@ -297,7 +297,8 @@ typedef enum{
              [self.nameArray addObject:placemark.thoroughfare];
              [self.nameArray addObject:placemark.subLocality];
              [self.nameArray addObject:placemark.locality];
-             [self.nameArray addObject:nameCountSer];
+//             [self.nameArray addObject:nameCountSer];
+             [self.nameArray addObject:@""];
              
              
              

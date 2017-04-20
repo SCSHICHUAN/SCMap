@@ -8,6 +8,13 @@
 
 #import "LocalNameTableViewCell.h"
 
+@interface LocalNameTableViewCell()
+{
+    int   nameCount;
+}
+@end
+
+
 @implementation LocalNameTableViewCell
 
 +(LocalNameTableViewCell *)LocalNameTableViewCellWithTableView:(UITableView *)tableView
@@ -16,14 +23,32 @@
     LocalNameTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentfer];
     if (cell == nil) {
         cell = [[NSBundle mainBundle] loadNibNamed:@"LocalNameTableViewCell" owner:nil options:nil].firstObject;
+        
     }
     return cell;
 }
-
+-(void)awakeFromNib
+{
+    [super awakeFromNib];
+    nameCount = 0;
+}
 -(void)setDresssnName:(NSString *)dresssnName
 {
     _dresssnName = dresssnName;
     self.localName.text = dresssnName;
+    
+    if (dresssnName.length == 0) {
+        nameCount +=1;
+        self.localName.text = [NSString stringWithFormat:@"第%d条",nameCount];
+        self.localName.font = [UIFont boldSystemFontOfSize:16];
+        self.localName.textColor = [UIColor colorWithRed:5.0/255 green:124.0/255 blue:255.0/255 alpha:1.0];
+        self.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.5];
+    }else{
+        self.localName.textColor = [UIColor whiteColor];
+        self.localName.font = [UIFont systemFontOfSize:17];
+        self.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.7];
+    }
+    
 }
 
 
