@@ -7,9 +7,7 @@
 //
 
 #import "AppDelegate.h"
-#import "MainViewController.h"
-#import "PlateViewController.h"
-#import "SetViewController.h"
+
 @interface AppDelegate ()
 
 @end
@@ -18,33 +16,7 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    
-    // 1.创建窗口
-    self.window = [[UIWindow alloc]initWithFrame:[UIScreen mainScreen].bounds];
-    
-    
-    UITabBarController *tvc = [[UITabBarController alloc] init];
-    
-    MainViewController *main = [[MainViewController alloc] init];
-    main.tabBarItem.image = [UIImage imageNamed:@"tab_home_icon"];
-    main.tabBarItem.title = @"首页";
-    
-    PlateViewController *plate = [[PlateViewController alloc] init];
-    plate.tabBarItem.image = [UIImage imageNamed:@"js"];
-    plate.tabBarItem.title = @"表盘";
-    
-    tvc.viewControllers = @[main,plate];
-    
-    // 2.设置窗口的根控制器为导航控制器
-    UINavigationController *nvc = [[UINavigationController alloc] initWithRootViewController:tvc];
-    nvc.navigationBar.hidden = YES;
-    
-    
-    self.window.rootViewController = nvc;
-    
-    // 3.显示窗口
-    [self.window makeKeyAndVisible];
-    
+    // Override point for customization after application launch.
     return YES;
 }
 
