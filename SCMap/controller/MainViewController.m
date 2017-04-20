@@ -10,6 +10,8 @@
 #import <CoreMotion/CoreMotion.h>
 #import <CoreLocation/CoreLocation.h>
 #import <MapKit/MapKit.h>
+#import "LocalNameTableViewCell.h"
+#import "YYAnnotation.h"
 
 #define kScreenWith ([UIScreen mainScreen].bounds.size.width)
 #define kScreenHeight ([UIScreen mainScreen].bounds.size.height)
@@ -25,6 +27,8 @@ typedef enum{
 @interface MainViewController ()<CLLocationManagerDelegate,MKMapViewDelegate,UITableViewDelegate,UITableViewDataSource>
 {
    MKUserLocation *_userLocation;
+   CLLocation *_cLocation;
+    int   nameCount;
     
 }
 @property(nonatomic,assign)Gprs_Typ  gprs_Typ;
@@ -89,9 +93,18 @@ typedef enum{
 {
     if (_tableView == nil) {
         _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height-64)];
-        _tableView.backgroundView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.7];
+        _tableView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.7];
         _tableView.delegate = self;
         _tableView.dataSource = self;
+        
+        UISwipeGestureRecognizer *swipwe = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swiweLift:)];
+        swipwe.direction = UISwipeGestureRecognizerDirectionLeft;
+        [self.tableView addGestureRecognizer:swipwe];
+        
+        
+        
+        
+        
     }
     return _tableView;
 }
@@ -103,8 +116,38 @@ typedef enum{
     return _nameArray;
 }
 
-
-
+-(void)swiweLift:(UISwipeGestureRecognizer *)swipe
+{
+    if (swipe.direction == UISwipeGestureRecognizerDirectionLeft) {
+        NSLog(@"UISwipeGestureRecognizerDirectionLeft");
+        [UIView animateWithDuration:0.25 animations:^{
+            self.tableView.frame = CGRectMake(-kScreenWith, 65, kScreenWith, self.tableView.bounds.size.height);
+            self.navigationHeadView.frame = CGRectMake(0, 0, kScreenWith, 40);
+            self.headLabel.frame = CGRectMake(0, 25, kScreenWith, 10);
+            self.headLabel.font = [UIFont systemFontOfSize:15];
+        } completion:^(BOOL finished) {
+            [self.tableView removeFromSuperview];
+        }];
+        
+        
+    }
+}
+-(void)showTabView
+{
+    [self.view addSubview:self.tableView];
+    [self.view bringSubviewToFront:self.button1];
+    [self.view bringSubviewToFront:self.navigationHeadView];
+    double higeht = self.tableView.bounds.size.height;
+    self.tableView.frame = CGRectMake(0,65, kScreenWith, 0);
+    [UIView animateWithDuration:0.25 animations:^{
+          self.tableView.frame = CGRectMake(0, 65, kScreenWith, higeht);
+          self.navigationHeadView.frame = CGRectMake(0, 0, kScreenWith, 64);
+          self.headLabel.frame = CGRectMake(0, 64/2-20/2+10, kScreenWith, 20);
+          self.headLabel.font = [UIFont systemFontOfSize:20];
+        
+        
+    } completion:nil];
+}
 
 
 
@@ -150,8 +193,39 @@ typedef enum{
     [self.view addSubview:self.navigationHeadView];
     [self.navigationHeadView addSubview:self.headLabel];
     
+    UILongPressGestureRecognizer *mTap = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(tapPress:)];
+    [self.mapView addGestureRecognizer:mTap];
     
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showTabView)];
+    [self.navigationHeadView addGestureRecognizer:tap];
+    
+    nameCount = 0;
 }
+
+- (void)tapPress:(UILongPressGestureRecognizer *)gestureRecognizer
+{
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        
+        CGPoint touchPoint = [gestureRecognizer locationInView:self.mapView];//这里touchPoint是点击的某点在地图控件中的位置
+        CLLocationCoordinate2D touchMapCoordinate =
+        [self.mapView convertPoint:touchPoint toCoordinateFromView:self.mapView];//这里touchMapCoordinate就是该点的经纬度了
+        NSLog(@"touching %f,%f",touchMapCoordinate.latitude,touchMapCoordinate.longitude);
+        CLLocationCoordinate2D location=CLLocationCoordinate2DMake(touchMapCoordinate.latitude, touchMapCoordinate.longitude);
+        _cLocation = [[CLLocation alloc] initWithLatitude:location.latitude longitude:location.longitude];
+        [self getLocalNameWithLocation:_cLocation];
+        
+        YYAnnotation *annotation=[[YYAnnotation alloc]init];
+        annotation.coordinate=location;
+        [_mapView addAnnotation:annotation];
+
+        
+       
+    }
+}
+
+
+
+
 -(void)typOrinig
 {
     self.gprs_Typ = YES;
@@ -177,7 +251,8 @@ typedef enum{
 //定位当前的位置
 -(void)gprsUser
 {
-  
+    [self.tableView removeFromSuperview];
+    
     CLLocationCoordinate2D loc = [_userLocation coordinate];
     //放大地图到自身的经纬度位置。
     MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(loc, 250, 250);
@@ -187,31 +262,47 @@ typedef enum{
 }
 -(void)addressesName
 {
+  [self getLocalNameWithLocation:_userLocation.location];
+}
+-(void)getLocalNameWithLocation:(CLLocation *)location
+{
     
     
-    CLLocationCoordinate2D loc = [_userLocation coordinate];
+    CLLocationCoordinate2D loc = [location coordinate];
     
     
     NSLog(@"loc.latitude= [ %f ]",loc.latitude);
     NSLog(@"loc.longitude= [ %f ]",loc.longitude);
     
     
-    
-    [self.geocoder reverseGeocodeLocation:_userLocation.location completionHandler:
+    [self.geocoder reverseGeocodeLocation:location completionHandler:
      ^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
          
          if (!error) {
-             [self.nameArray removeAllObjects];
+             
              
              CLPlacemark *placemark = placemarks.firstObject;
              
              self.headLabel.text = placemark.subLocality;
+            
+             nameCount +=1;
              
-             [self.nameArray addObject:placemark.locality];
-             [self.nameArray addObject:placemark.subLocality];
-             [self.nameArray addObject:placemark.thoroughfare];
+             NSString *nameCountSer = [NSString stringWithFormat:@"第%d条",nameCount];
+             
+             
+             
+            
+             
              [self.nameArray addObject:placemark.name];
-           
+             [self.nameArray addObject:placemark.thoroughfare];
+             [self.nameArray addObject:placemark.subLocality];
+             [self.nameArray addObject:placemark.locality];
+             [self.nameArray addObject:nameCountSer];
+             
+             
+             
+             
+             
              
              NSLog(@"成功 %@",[placemark class]);
              NSLog(@"地理名称%@",placemark.name);
@@ -226,7 +317,7 @@ typedef enum{
              [self.tableView reloadData];
              [self.view addSubview:self.tableView];
              [self.view bringSubviewToFront:self.button1];
-             
+             [self showTabView];
          }else if (error) {
              
              NSLog(@"error= [ %@ ]",error);
@@ -238,23 +329,28 @@ typedef enum{
 }
 
 
+
+
 #pragma mark - UITableViewDataSource
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     
-    self.tableView.frame = CGRectMake(0, 65, kScreenWith, self.nameArray.count*44);
+    CGFloat tabVieHeight =  self.nameArray.count*44.0;
+    
+    if (tabVieHeight < kScreenHeight-65-44) {
+        self.tableView.frame = CGRectMake(0, 65, kScreenWith,tabVieHeight);
+    }else if (tabVieHeight > kScreenHeight-65-44) {
+        self.tableView.frame = CGRectMake(0, 65, kScreenWith, kScreenHeight-65-44);
+    }
+    
+    
     return self.nameArray.count;
 }
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *cellIdentfer = @"cellIdentfer";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentfer];
-    if (cell == nil) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentfer];
-        cell.textLabel.text = self.nameArray[indexPath.row];
-        cell.backgroundColor = [UIColor clearColor];
-        NSLog(@"self.nameArray[indexPath.row]= [ %@ ]",self.nameArray[indexPath.row]);
-    }
+    LocalNameTableViewCell *cell = [LocalNameTableViewCell LocalNameTableViewCellWithTableView:tableView];
+    
+    cell.dresssnName = self.nameArray[self.nameArray.count-1-indexPath.row];
     return cell;
 }
 

@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E364E4201EA8ACB2005A351A /* LocalNameTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E364E41E1EA8ACB2005A351A /* LocalNameTableViewCell.m */; };
+		E364E4211EA8ACB2005A351A /* LocalNameTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E364E41F1EA8ACB2005A351A /* LocalNameTableViewCell.xib */; };
+		E364E4241EA8C07A005A351A /* YYAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = E364E4231EA8C07A005A351A /* YYAnnotation.m */; };
 		E3DF726B1EA75BFA0018AE45 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E3DF726A1EA75BFA0018AE45 /* main.m */; };
 		E3DF726E1EA75BFA0018AE45 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E3DF726D1EA75BFA0018AE45 /* AppDelegate.m */; };
 		E3DF72761EA75BFA0018AE45 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E3DF72751EA75BFA0018AE45 /* Assets.xcassets */; };
@@ -20,6 +23,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E364E41D1EA8ACB2005A351A /* LocalNameTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalNameTableViewCell.h; sourceTree = "<group>"; };
+		E364E41E1EA8ACB2005A351A /* LocalNameTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalNameTableViewCell.m; sourceTree = "<group>"; };
+		E364E41F1EA8ACB2005A351A /* LocalNameTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LocalNameTableViewCell.xib; sourceTree = "<group>"; };
+		E364E4221EA8C07A005A351A /* YYAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YYAnnotation.h; sourceTree = "<group>"; };
+		E364E4231EA8C07A005A351A /* YYAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YYAnnotation.m; sourceTree = "<group>"; };
 		E3DF72661EA75BFA0018AE45 /* SCMap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SCMap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3DF726A1EA75BFA0018AE45 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		E3DF726C1EA75BFA0018AE45 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../AppDelegate.h; sourceTree = "<group>"; };
@@ -49,6 +57,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E364E41C1EA8AC68005A351A /* view */ = {
+			isa = PBXGroup;
+			children = (
+				E364E4221EA8C07A005A351A /* YYAnnotation.h */,
+				E364E4231EA8C07A005A351A /* YYAnnotation.m */,
+				E364E41D1EA8ACB2005A351A /* LocalNameTableViewCell.h */,
+				E364E41E1EA8ACB2005A351A /* LocalNameTableViewCell.m */,
+				E364E41F1EA8ACB2005A351A /* LocalNameTableViewCell.xib */,
+			);
+			path = view;
+			sourceTree = "<group>";
+		};
 		E3DF725D1EA75BFA0018AE45 = {
 			isa = PBXGroup;
 			children = (
@@ -68,10 +88,11 @@
 		E3DF72681EA75BFA0018AE45 /* SCMap */ = {
 			isa = PBXGroup;
 			children = (
-				E3DF72801EA75C960018AE45 /* class */,
-				E3DF72811EA75C960018AE45 /* controller */,
-				E3DF72821EA75C960018AE45 /* library */,
 				E3DF72831EA75C960018AE45 /* model */,
+				E364E41C1EA8AC68005A351A /* view */,
+				E3DF72811EA75C960018AE45 /* controller */,
+				E3DF72801EA75C960018AE45 /* class */,
+				E3DF72821EA75C960018AE45 /* library */,
 				E3DF72841EA75C960018AE45 /* other */,
 				E3DF72691EA75BFA0018AE45 /* Supporting Files */,
 			);
@@ -198,6 +219,7 @@
 				E3DF72931EA764110018AE45 /* SetViewController.xib in Resources */,
 				E3DF728E1EA763E20018AE45 /* PlateViewController.xib in Resources */,
 				E3DF72891EA75E3C0018AE45 /* MainViewController.xib in Resources */,
+				E364E4211EA8ACB2005A351A /* LocalNameTableViewCell.xib in Resources */,
 				E3DF72761EA75BFA0018AE45 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -211,6 +233,8 @@
 			files = (
 				E3DF726E1EA75BFA0018AE45 /* AppDelegate.m in Sources */,
 				E3DF728D1EA763E20018AE45 /* PlateViewController.m in Sources */,
+				E364E4241EA8C07A005A351A /* YYAnnotation.m in Sources */,
+				E364E4201EA8ACB2005A351A /* LocalNameTableViewCell.m in Sources */,
 				E3DF72881EA75E3C0018AE45 /* MainViewController.m in Sources */,
 				E3DF72921EA764110018AE45 /* SetViewController.m in Sources */,
 				E3DF726B1EA75BFA0018AE45 /* main.m in Sources */,
