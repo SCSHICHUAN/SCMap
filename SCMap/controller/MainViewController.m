@@ -143,18 +143,20 @@ typedef enum{
 {
     if (swipe.direction == UISwipeGestureRecognizerDirectionLeft) {
         NSLog(@"UISwipeGestureRecognizerDirectionLeft");
-        [UIView animateWithDuration:0.25 animations:^{
-            self.tableView.frame = CGRectMake(-kScreenWith, 65, kScreenWith, self.tableView.bounds.size.height);
-            self.navigationHeadView.frame = CGRectMake(0, 0, kScreenWith, 40);
-            self.headLabel.frame = CGRectMake(0, 25, kScreenWith, 10);
-            self.headLabel.font = [UIFont systemFontOfSize:15];
-            self.tabBarController.tabBar.frame = CGRectMake(0, kScreenHeight, kScreenWith, 44);
-        } completion:^(BOOL finished) {
-            [self.tableView removeFromSuperview];
-        }];
-        
-        
+        [self hiddenTabVie];
     }
+}
+-(void)hiddenTabVie
+{
+    [UIView animateWithDuration:0.25 animations:^{
+        self.tableView.frame = CGRectMake(-kScreenWith, 65, kScreenWith, self.tableView.bounds.size.height);
+        self.navigationHeadView.frame = CGRectMake(0, 0, kScreenWith, 40);
+        self.headLabel.frame = CGRectMake(0, 25, kScreenWith, 10);
+        self.headLabel.font = [UIFont systemFontOfSize:15];
+        self.tabBarController.tabBar.frame = CGRectMake(0, kScreenHeight, kScreenWith, 44);
+    } completion:^(BOOL finished) {
+        [self.tableView removeFromSuperview];
+    }];
 }
 -(void)showTabView
 {
@@ -176,6 +178,7 @@ typedef enum{
 
 -(void)gprsUser2
 {
+    [self hiddenTabVie];
     [self.mapView removeOverlays:self.mapView.overlays];//移除划的线路
     [self line];
 }
