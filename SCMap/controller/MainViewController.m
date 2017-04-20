@@ -125,6 +125,7 @@ typedef enum{
             self.navigationHeadView.frame = CGRectMake(0, 0, kScreenWith, 40);
             self.headLabel.frame = CGRectMake(0, 25, kScreenWith, 10);
             self.headLabel.font = [UIFont systemFontOfSize:15];
+            self.tabBarController.tabBar.frame = CGRectMake(0, kScreenHeight, kScreenWith, 44);
         } completion:^(BOOL finished) {
             [self.tableView removeFromSuperview];
         }];
@@ -144,7 +145,7 @@ typedef enum{
           self.navigationHeadView.frame = CGRectMake(0, 0, kScreenWith, 64);
           self.headLabel.frame = CGRectMake(0, 64/2-20/2+10, kScreenWith, 20);
           self.headLabel.font = [UIFont systemFontOfSize:20];
-        
+          self.tabBarController.tabBar.frame = CGRectMake(0, kScreenHeight-44, kScreenWith, 44);
         
     } completion:nil];
 }
@@ -286,23 +287,11 @@ typedef enum{
              self.headLabel.text = placemark.subLocality;
             
              
-             
-//             NSString *nameCountSer = [NSString stringWithFormat:@"第%d条",nameCount];
-             
-             
-             
-            
-             
              [self.nameArray addObject:placemark.name];
              [self.nameArray addObject:placemark.thoroughfare];
              [self.nameArray addObject:placemark.subLocality];
              [self.nameArray addObject:placemark.locality];
-//             [self.nameArray addObject:nameCountSer];
              [self.nameArray addObject:@""];
-             
-             
-             
-             
              
              
              NSLog(@"成功 %@",[placemark class]);
