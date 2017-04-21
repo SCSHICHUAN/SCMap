@@ -49,7 +49,14 @@ typedef enum{
 @property(nonatomic,strong)NSMutableArray *pointArray;
 @property(strong,nonatomic)MKDirections *directs;//用于发送请求给服务器，获取规划好后的路线。
 @property(nonatomic,strong)UITextField *titleHead;
+@property(nonatomic,strong)UITextField *TextField1;
+@property(nonatomic,strong)UITextField *TextField2;
+@property(nonatomic,strong)UILabel *label1;
+@property(nonatomic,strong)UILabel *label2;
+@property(nonatomic,strong)UIButton *button4;
+@property(nonatomic,strong)UIButton *button5;
 @property(nonatomic,strong)UIView *wordView;
+
 @end
 
 @implementation MainViewController
@@ -91,6 +98,32 @@ typedef enum{
         [_button3 addTarget:self action:@selector(gprsUser3) forControlEvents:UIControlEventTouchUpInside];
     }
     return _button3;
+}
+-(UIButton *)button4
+{
+    if (_button4 == nil) {
+        _button4 = [UIButton buttonWithType:UIButtonTypeSystem];
+        _button4.backgroundColor = [UIColor colorWithRed:5.0/255 green:124.0/255 blue:255.0/255 alpha:1.0];
+        _button4.frame = CGRectMake(60, 70+60, 80, 80);
+        _button4.layer.cornerRadius = 40;
+        [_button4 setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [_button4 setTitle:@"开始计算" forState:UIControlStateNormal];
+        [_button4 addTarget:self action:@selector(gprsUser4) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _button4;
+}
+-(UIButton *)button5
+{
+    if (_button5 == nil) {
+        _button5 = [UIButton buttonWithType:UIButtonTypeSystem];
+        _button5.backgroundColor = [UIColor colorWithRed:5.0/255 green:124.0/255 blue:255.0/255 alpha:1.0];
+        _button5.frame = CGRectMake(kScreenWith - 80-60, 70+60, 80,80);
+        _button5.layer.cornerRadius = 40;
+        [_button5 setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [_button5 setTitle:@"移除大头" forState:UIControlStateNormal];
+        [_button5 addTarget:self action:@selector(gprsUser5) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _button5;
 }
 -(UIView *)navigationHeadView
 {
@@ -168,6 +201,45 @@ typedef enum{
     }
     return _wordView;
 }
+-(UILabel *)label1
+{
+    if (_label1 == nil) {
+        _label1 = [[UILabel alloc] initWithFrame:CGRectMake(12, 20, 80, 35)];
+        _label1.font = [UIFont boldSystemFontOfSize:17];
+        _label1.textColor = [UIColor colorWithRed:5.0/255 green:124.0/255 blue:255.0/255 alpha:1.0];
+        _label1.text = @"起点";
+    }
+    return _label1;
+}
+-(UILabel *)label2
+{
+    if (_label2 == nil) {
+        _label2 = [[UILabel alloc] initWithFrame:CGRectMake(12, 70, 80, 35)];
+        _label2.font = [UIFont boldSystemFontOfSize:17];
+        _label2.textColor = [UIColor redColor];
+        _label2.text = @"终点";
+    }
+    return _label2;
+}
+-(UITextField *)TextField1
+{
+    if (_TextField1 == nil) {
+        _TextField1 = [[UITextField alloc] initWithFrame:CGRectMake(60, 20, kScreenWith - 90-10, 35)];
+        _TextField1.borderStyle = UITextBorderStyleRoundedRect;
+        _TextField1.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.2];
+    }
+    return _TextField1;
+}
+-(UITextField *)TextField2
+{
+    if (_TextField2 == nil) {
+        _TextField2 = [[UITextField alloc] initWithFrame:CGRectMake(60, 70, kScreenWith - 90-10, 35)];
+        _TextField2.borderStyle = UITextBorderStyleRoundedRect;
+        _TextField2.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.2];
+    }
+    return _TextField2;
+}
+
 
 
 
@@ -220,21 +292,68 @@ typedef enum{
 -(void)gprsUser3
 {
     [self.view addSubview:self.wordView];
-    
-    //1.创建动画
-    CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@"bounds"];
-    //2.设置关键帧动画的values
-    NSValue *value0 = [NSValue valueWithCGRect:self.button3.frame];
-    NSValue *value1 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, (kScreenWith-10)*0.5, (kScreenHeight-260)*0.5)];
-    NSValue *value2 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, (kScreenWith-10)*1.2, (kScreenHeight-260)*1.2)];
-    NSValue *value3 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10, kScreenHeight-260)];
-    animation.values = @[value0,value1,value2,value3];
-    //3.添加动画
-    [self.wordView.layer addAnimation:animation forKey:nil];
+    self.wordView.frame = self.button3.frame;
     
     
+//    //1.创建动画
+//    CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@"bounds"];
+//    //2.设置关键帧动画的values
+//    NSValue *value0 = [NSValue valueWithCGRect:self.button3.frame];
+//    NSValue *value1 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, (kScreenWith-10)*0.5, (kScreenHeight-260)*0.5)];
+//    NSValue *value2 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, (kScreenWith-10)*1.2, (kScreenHeight-260)*1.2)];
+//    NSValue *value3 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10, kScreenHeight-260)];
+//    animation.values = @[value0,value1,value2,value3];
+//    //3.添加动画
+//    [self.wordView.layer addAnimation:animation forKey:nil];
+    
+   
+    
+    [UIView animateWithDuration:0.2 animations:^{
+        self.wordView.frame =  CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10, 2);
+    } completion:^(BOOL finished) {
+        [UIView animateWithDuration:0.2 animations:^{
+            self.wordView.frame =  CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10, kScreenHeight-260);
+        } completion:nil];
+    }];
+    
+    
+    
+    
+    [self performSelector:@selector(addWordSubView) withObject:nil afterDelay:0.4];
+}
+-(void)addWordSubView
+{
+    [self.wordView addSubview:self.label1];
+    [self.wordView addSubview:self.label2];
+    [self.wordView addSubview:self.TextField1];
+    [self.wordView addSubview:self.TextField2];
+    [self.wordView addSubview:self.button4];
+    [self.wordView addSubview:self.button5];
+}
+-(void)hiddenWordSubView
+{
+    [self.label1 removeFromSuperview] ;
+    [self.label2 removeFromSuperview];
+    [self.TextField1 removeFromSuperview];
+    [self.TextField2 removeFromSuperview];
+    [self.button4 removeFromSuperview];
+    [self.button5 removeFromSuperview];
+}
+-(void)gprsUser4
+{
     
 }
+-(void)gprsUser5
+{
+    // 获取地图上所有的大头针数据模型
+    NSArray *annotations = self.mapView.annotations;
+    
+    // 移除大头针
+    [self.mapView removeAnnotations:annotations];
+}
+
+
+
 
 
 
@@ -288,6 +407,10 @@ typedef enum{
     UILongPressGestureRecognizer *mTap = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(tapPress:)];
     [self.mapView addGestureRecognizer:mTap];
     
+    UITapGestureRecognizer *mTap2 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapPress2:)];
+    [self.mapView addGestureRecognizer:mTap2];
+
+    
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showTabView)];
     [self.navigationHeadView addGestureRecognizer:tap];
     
@@ -312,15 +435,23 @@ typedef enum{
        
     }
 }
-
+- (void)tapPress2:(UITapGestureRecognizer *)tapGesture
+{
+    [UIView animateWithDuration:0.2 animations:^{
+        self.wordView.frame =  CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10,2);
+        [self hiddenWordSubView];
+    } completion:^(BOOL finished) {
+        [UIView animateWithDuration:0.2 animations:^{
+             self.wordView.frame =  self.button3.frame;
+        } completion:^(BOOL finished) {
+            [self.wordView removeFromSuperview];
+        }];
+    }];
+}
 
 -(void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    // 获取地图上所有的大头针数据模型
-       NSArray *annotations = self.mapView.annotations;
     
-    // 移除大头针
-//       [self.mapView removeAnnotations:annotations];
     
 //    [self addAnnotation];
 }
