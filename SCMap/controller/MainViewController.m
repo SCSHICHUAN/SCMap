@@ -318,62 +318,63 @@ typedef enum{
  *  @return 大头针视图
  *  注意: 如果这个方法, 没有实现, 或者, 这个方法返回nil, 那么系统就会调用系统默认的大头针视图
  */
--(MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation
-{
-    // 如果是系统的大头针数据模型, 那么使用系统默认的大头针视图,
-    if([annotation isKindOfClass:[MKUserLocation class]])
-    {
-        return nil;
-    }
-    
-    // 如果想要自定义大头针视图, 必须使用MKAnnotationView 或者 继承 MKAnnotationView 的子类
-    
-    // 设置循环利用标识
-    static NSString *pinID = @"pinID";
-    
-    // 从缓存池取出大头针数据视图
-    MKAnnotationView *customView = [mapView dequeueReusableAnnotationViewWithIdentifier:pinID];
-    
-    // 如果取出的为nil , 那么就手动创建大头针视图
-    if (customView == nil) {
-        customView = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:pinID];
-    }
-    
-    // 1. 设置大头针图片
-    customView.image = [UIImage imageNamed:@"1"];
-    
-    // 2. 设置弹框
-    customView.canShowCallout = YES;
-    
-    // 2.1 设置大头针偏移量
-    //    customView.centerOffset = CGPointMake(100, -100);
-    // 2.2 设置弹框的偏移量
-    //    customView.calloutOffset = CGPointMake(100, 100);
-    
-    
-//    // 3. 自定义弹框
-//    // 3.1 设置弹框左侧的视图
-//    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
-//    imageView.image = [UIImage imageNamed:@"2"];
-//    customView.leftCalloutAccessoryView = imageView;
-//    
-//    // 3.2 设置弹框右侧视图
-//    UIImageView *imageView2 = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
-//    imageView2.image = [UIImage imageNamed:@"3"];
-//    customView.rightCalloutAccessoryView = imageView2;
-//    
-//    // 3.3 设置弹框的详情视图(一定要注意,对应的版本)
-//    if ([[UIDevice currentDevice].systemVersion floatValue] >= 9.0) {
-//        customView.detailCalloutAccessoryView = [UISwitch new];
+//-(MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation
+//{
+//    // 如果是系统的大头针数据模型, 那么使用系统默认的大头针视图,
+//    if([annotation isKindOfClass:[MKUserLocation class]])
+//    {
+//        return nil;
 //    }
-    
-    // 设置大头针视图可以被拖拽
-    customView.draggable = YES;
-    
-    return customView;
-    return nil;
-}
-
+//    
+//    // 如果想要自定义大头针视图, 必须使用MKAnnotationView 或者 继承 MKAnnotationView 的子类
+//    
+//    // 设置循环利用标识
+//    static NSString *pinID = @"pinID";
+//    
+//    // 从缓存池取出大头针数据视图
+//    MKAnnotationView *customView = [mapView dequeueReusableAnnotationViewWithIdentifier:pinID];
+//    
+//    // 如果取出的为nil , 那么就手动创建大头针视图
+//    if (customView == nil) {
+//        customView = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:pinID];
+//    }
+//    
+//    // 1. 设置大头针图片
+//    customView.image = [UIImage imageNamed:@"push_pin"];
+//    
+//    
+//    // 2. 设置弹框
+//    customView.canShowCallout = YES;
+//    
+//    // 2.1 设置大头针偏移量
+//    //    customView.centerOffset = CGPointMake(100, -100);
+//    // 2.2 设置弹框的偏移量
+//    //    customView.calloutOffset = CGPointMake(100, 100);
+//    
+//    
+////    // 3. 自定义弹框
+////    // 3.1 设置弹框左侧的视图
+////    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
+////    imageView.image = [UIImage imageNamed:@"2"];
+////    customView.leftCalloutAccessoryView = imageView;
+////    
+////    // 3.2 设置弹框右侧视图
+////    UIImageView *imageView2 = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
+////    imageView2.image = [UIImage imageNamed:@"3"];
+////    customView.rightCalloutAccessoryView = imageView2;
+////    
+////    // 3.3 设置弹框的详情视图(一定要注意,对应的版本)
+////    if ([[UIDevice currentDevice].systemVersion floatValue] >= 9.0) {
+////        customView.detailCalloutAccessoryView = [UISwitch new];
+////    }
+//    
+//    // 设置大头针视图可以被拖拽
+//    customView.draggable = YES;
+//    
+//    return customView;
+//    return nil;
+//}
+//
 
 
 
@@ -547,6 +548,7 @@ typedef enum{
     
     request.source = formPlce;
     request.destination = endPlace;
+    request.requestsAlternateRoutes = MKDirectionsTransportTypeWalking;//步行
     
     self.directs = [[MKDirections alloc]initWithRequest:request];
     
