@@ -40,6 +40,7 @@ typedef enum{
 @property(nonatomic,strong)CLLocationManager *locationManager;
 @property(nonatomic,strong)UIButton *button1;
 @property(nonatomic,strong)UIButton *button2;
+@property(nonatomic,strong)UIButton *button3;
 @property(nonatomic,strong)UIView *navigationHeadView;
 @property(nonatomic,strong)CLGeocoder *geocoder;//地理编码工具
 @property(nonatomic,strong)UILabel *headLabel;
@@ -48,6 +49,7 @@ typedef enum{
 @property(nonatomic,strong)NSMutableArray *pointArray;
 @property(strong,nonatomic)MKDirections *directs;//用于发送请求给服务器，获取规划好后的路线。
 @property(nonatomic,strong)UITextField *titleHead;
+@property(nonatomic,strong)UIView *wordView;
 @end
 
 @implementation MainViewController
@@ -79,6 +81,16 @@ typedef enum{
         [_button2 addTarget:self action:@selector(gprsUser2) forControlEvents:UIControlEventTouchUpInside];
     }
     return _button2;
+}
+-(UIButton *)button3
+{
+    if (_button3 == nil) {
+        _button3 = [UIButton buttonWithType:UIButtonTypeSystem];
+        [_button3 setImage:[UIImage imageNamed: @"magnifier11"] forState:UIControlStateNormal];
+        _button3.frame = CGRectMake(kScreenWith - 40,64+5+10+35+10+35,35, 35);
+        [_button3 addTarget:self action:@selector(gprsUser3) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _button3;
 }
 -(UIView *)navigationHeadView
 {
@@ -137,14 +149,25 @@ typedef enum{
 -(UITextField *)titleHead
 {
     if (_titleHead == nil) {
-        _titleHead = [[UITextField alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(self.navigationHeadView.frame)+1, kScreenWith-10, 20)];
+        _titleHead = [[UITextField alloc] initWithFrame:CGRectMake(5, 44, kScreenWith-5, 20)];
         _titleHead.font = [UIFont systemFontOfSize:15];
         _titleHead.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.5];
         _titleHead.textColor = [UIColor blackColor];
     }
     return _titleHead;
 }
-
+-(UIView *)wordView
+{
+    if (_wordView == nil) {
+        _wordView = [[UIView alloc] initWithFrame:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10, kScreenHeight-260)];
+        _wordView.backgroundColor = [UIColor whiteColor];
+        _wordView.layer.cornerRadius = 8;
+        _wordView.layer.shadowColor = [UIColor blackColor].CGColor;
+        _wordView.layer.shadowOffset = CGSizeMake(0, 0);
+        _wordView.layer.shadowOpacity = 0.5;
+    }
+    return _wordView;
+}
 
 
 
@@ -174,6 +197,7 @@ typedef enum{
     [self.view addSubview:self.tableView];
     [self.view bringSubviewToFront:self.button1];
     [self.view bringSubviewToFront:self.button2];
+    [self.view bringSubviewToFront:self.button3];
     [self.view bringSubviewToFront:self.navigationHeadView];
     double higeht = self.tableView.bounds.size.height;
     self.tableView.frame = CGRectMake(0,65, kScreenWith, 0);
@@ -193,7 +217,24 @@ typedef enum{
     [self.mapView removeOverlays:self.mapView.overlays];//移除划的线路
     [self line];
 }
-
+-(void)gprsUser3
+{
+    [self.view addSubview:self.wordView];
+    
+    //1.创建动画
+    CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@"bounds"];
+    //2.设置关键帧动画的values
+    NSValue *value0 = [NSValue valueWithCGRect:self.button3.frame];
+    NSValue *value1 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, (kScreenWith-10)*0.5, (kScreenHeight-260)*0.5)];
+    NSValue *value2 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, (kScreenWith-10)*1.2, (kScreenHeight-260)*1.2)];
+    NSValue *value3 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10, kScreenHeight-260)];
+    animation.values = @[value0,value1,value2,value3];
+    //3.添加动画
+    [self.wordView.layer addAnimation:animation forKey:nil];
+    
+    
+    
+}
 
 
 
@@ -210,6 +251,7 @@ typedef enum{
     //标注自身位置
     [self.mapView setShowsUserLocation:YES];
     [self.view addSubview:self.mapView];
+    [self.view addSubview:self.titleHead];
     //    [self.view addSubview:self.speedLabel];
     //    [self.view addSubview:self.speedAverageLabel];
     //    [self.view addSubview:self.timeLabel];
@@ -236,9 +278,11 @@ typedef enum{
     [self.locationManager startUpdatingLocation];  //开始定位
     [self.view addSubview:self.button1];
     [self.view addSubview:self.button2];
+    [self.view addSubview:self.button3];
     
     [self performSelector:@selector(gprsUser) withObject:nil afterDelay:2.0];
     [self.view addSubview:self.navigationHeadView];
+    
     [self.navigationHeadView addSubview:self.headLabel];
     
     UILongPressGestureRecognizer *mTap = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(tapPress:)];
@@ -246,7 +290,7 @@ typedef enum{
     
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showTabView)];
     [self.navigationHeadView addGestureRecognizer:tap];
-    [self.navigationHeadView addSubview:self.titleHead];
+    
     pointCount = 0;
    
 }
