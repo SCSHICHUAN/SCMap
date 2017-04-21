@@ -11,6 +11,6 @@
 #import <CoreLocation/CoreLocation.h>
 
 @interface YYAnnotation : NSObject<MKAnnotation>
-
 @property(assign,nonatomic)CLLocationCoordinate2D coordinate;
+@property(nonatomic,copy)NSString *title;//自己本来就有的copy
 @end

@@ -29,6 +29,7 @@ typedef enum{
 {
    MKUserLocation *_userLocation;
    CLLocation *_cLocation;
+   int pointCount;
     
     
 }
@@ -46,6 +47,7 @@ typedef enum{
 @property(nonatomic,strong)NSMutableArray *nameArray;
 @property(nonatomic,strong)NSMutableArray *pointArray;
 @property(strong,nonatomic)MKDirections *directs;//用于发送请求给服务器，获取规划好后的路线。
+@property(nonatomic,strong)UITextField *titleHead;
 @end
 
 @implementation MainViewController
@@ -132,7 +134,16 @@ typedef enum{
     }
     return _pointArray;
 }
-
+-(UITextField *)titleHead
+{
+    if (_titleHead == nil) {
+        _titleHead = [[UITextField alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(self.navigationHeadView.frame)+1, kScreenWith-10, 20)];
+        _titleHead.font = [UIFont systemFontOfSize:15];
+        _titleHead.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.5];
+        _titleHead.textColor = [UIColor blackColor];
+    }
+    return _titleHead;
+}
 
 
 
@@ -235,7 +246,8 @@ typedef enum{
     
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showTabView)];
     [self.navigationHeadView addGestureRecognizer:tap];
-    
+    [self.navigationHeadView addSubview:self.titleHead];
+    pointCount = 0;
    
 }
 
@@ -247,24 +259,28 @@ typedef enum{
         CLLocationCoordinate2D touchMapCoordinate =
         [self.mapView convertPoint:touchPoint toCoordinateFromView:self.mapView];//这里touchMapCoordinate就是该点的经纬度了
         NSLog(@"touching %f,%f",touchMapCoordinate.latitude,touchMapCoordinate.longitude);
-        CLLocationCoordinate2D location=CLLocationCoordinate2DMake(touchMapCoordinate.latitude, touchMapCoordinate.longitude);
-        _cLocation = [[CLLocation alloc] initWithLatitude:location.latitude longitude:location.longitude];
-        [self getLocalNameWithLocation:_cLocation];
+        CLLocationCoordinate2D location2D=CLLocationCoordinate2DMake(touchMapCoordinate.latitude, touchMapCoordinate.longitude);
+        _cLocation = [[CLLocation alloc] initWithLatitude:location2D.latitude longitude:location2D.longitude];
+        [self getLocalNameWithLocation:_cLocation andType:@"1"];
         
-        YYAnnotation *annotation=[[YYAnnotation alloc]init];
-        annotation.coordinate=location;
-        [_mapView addAnnotation:annotation];
-
-        
-        
-        PointModel *model = [[PointModel alloc] initWithDict:@{@"logitude":[NSString stringWithFormat:@"%f",touchMapCoordinate.longitude],@"latitude":[NSString stringWithFormat:@"%f",touchMapCoordinate.latitude]}];
-        
-        [self.pointArray addObject:model];
         
         
        
     }
 }
+
+
+-(void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    // 获取地图上所有的大头针数据模型
+       NSArray *annotations = self.mapView.annotations;
+    
+    // 移除大头针
+//       [self.mapView removeAnnotations:annotations];
+    
+//    [self addAnnotation];
+}
+
 
 
 
@@ -274,6 +290,7 @@ typedef enum{
     self.gprs_Typ = YES;
     
 }
+
 
 
 #pragma mark -MKMapViewDelegate
@@ -291,6 +308,82 @@ typedef enum{
     
 }
 
+
+/**
+ *  当我们添加大头针数据模型时, 就会调用这个方法, 查找对应的大头针视图
+ *
+ *  @param mapView    地图
+ *  @param annotation 大头针数据模型
+ *
+ *  @return 大头针视图
+ *  注意: 如果这个方法, 没有实现, 或者, 这个方法返回nil, 那么系统就会调用系统默认的大头针视图
+ */
+-(MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation
+{
+    // 如果是系统的大头针数据模型, 那么使用系统默认的大头针视图,
+    if([annotation isKindOfClass:[MKUserLocation class]])
+    {
+        return nil;
+    }
+    
+    // 如果想要自定义大头针视图, 必须使用MKAnnotationView 或者 继承 MKAnnotationView 的子类
+    
+    // 设置循环利用标识
+    static NSString *pinID = @"pinID";
+    
+    // 从缓存池取出大头针数据视图
+    MKAnnotationView *customView = [mapView dequeueReusableAnnotationViewWithIdentifier:pinID];
+    
+    // 如果取出的为nil , 那么就手动创建大头针视图
+    if (customView == nil) {
+        customView = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:pinID];
+    }
+    
+    // 1. 设置大头针图片
+    customView.image = [UIImage imageNamed:@"1"];
+    
+    // 2. 设置弹框
+    customView.canShowCallout = YES;
+    
+    // 2.1 设置大头针偏移量
+    //    customView.centerOffset = CGPointMake(100, -100);
+    // 2.2 设置弹框的偏移量
+    //    customView.calloutOffset = CGPointMake(100, 100);
+    
+    
+//    // 3. 自定义弹框
+//    // 3.1 设置弹框左侧的视图
+//    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
+//    imageView.image = [UIImage imageNamed:@"2"];
+//    customView.leftCalloutAccessoryView = imageView;
+//    
+//    // 3.2 设置弹框右侧视图
+//    UIImageView *imageView2 = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
+//    imageView2.image = [UIImage imageNamed:@"3"];
+//    customView.rightCalloutAccessoryView = imageView2;
+//    
+//    // 3.3 设置弹框的详情视图(一定要注意,对应的版本)
+//    if ([[UIDevice currentDevice].systemVersion floatValue] >= 9.0) {
+//        customView.detailCalloutAccessoryView = [UISwitch new];
+//    }
+    
+    // 设置大头针视图可以被拖拽
+    customView.draggable = YES;
+    
+    return customView;
+    return nil;
+}
+
+
+
+
+
+
+
+
+
+
+
 //定位当前的位置
 -(void)gprsUser
 {
@@ -307,9 +400,9 @@ typedef enum{
 }
 -(void)addressesName
 {
-  [self getLocalNameWithLocation:_userLocation.location];
+  [self getLocalNameWithLocation:_userLocation.location andType:@"0"];
 }
--(void)getLocalNameWithLocation:(CLLocation *)location
+-(void)getLocalNameWithLocation:(CLLocation *)location andType:(NSString *)type
 {
     
     
@@ -348,12 +441,45 @@ typedef enum{
              NSLog(@"地址%@",placemark.addressDictionary);
              NSLog(@"=======\n");
              
-             [self.tableView reloadData];
-             [self.view addSubview:self.tableView];
-             [self.view bringSubviewToFront:self.button1];
-             [self.view bringSubviewToFront:self.button2];
              
-             [self showTabView];
+             YYAnnotation *annotation=[[YYAnnotation alloc]init];
+             annotation.coordinate=loc;
+             annotation.title = placemark.name;
+             
+             if ([type isEqualToString:@"1"]) {
+                 
+                 [self.mapView addAnnotation:annotation];
+                 
+                 pointCount +=1;
+                 NSDictionary *dict = @{@"pointLocation":location,
+                                        @"name":placemark.name,
+                                        @"thoroughfare":placemark.thoroughfare,
+                                        @"subLocality":placemark.subLocality,
+                                        @"locality":placemark.locality,
+                                        @"speceTitle":[NSString stringWithFormat:@"%d",pointCount]
+                                        };
+                 
+                 
+                 
+                 PointModel *model = [[PointModel alloc] initWithDict:dict];
+                 
+                 
+                 [self.pointArray addObject:model];
+             }
+             
+             
+
+             
+             
+             
+             
+             
+             
+             self.titleHead.text = placemark.name;
+             [self.mapView addSubview:self.titleHead];
+             [self.tableView reloadData];
+             
+//             [self showTabView];
          }else if (error) {
              
              NSLog(@"error= [ %@ ]",error);
@@ -368,31 +494,13 @@ typedef enum{
 -(void)line
 {
     
-    CLLocationCoordinate2D loction1,loction2;
-    
     PointModel *model1,*model2;
     
     model1 = self.pointArray[self.pointArray.count-2];
     model2 = self.pointArray.lastObject;
     
-    loction1.latitude = [model1.latitude floatValue];
-    loction1.longitude = [model1.logitude floatValue];
     
-    
-    NSLog(@"loction1.latitude= [ %f ]",loction1.latitude);
-    NSLog(@"loction2.latitude= [ %f ]",loction2.latitude);
-    
-    
-    loction2.latitude = [model2.latitude floatValue];
-    loction2.longitude = [model2.logitude floatValue];
-    
-    CLLocation *local1 = [[CLLocation alloc] initWithLatitude:loction1.latitude longitude:loction1.longitude];
-    CLLocation *local2 = [[CLLocation alloc] initWithLatitude:loction2.latitude longitude:loction2.longitude];
-    
-    
-    
-    
-    [_geocoder reverseGeocodeLocation:local2 completionHandler:
+    [_geocoder reverseGeocodeLocation:model1.pointLocation completionHandler:
      ^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
          
          
@@ -407,11 +515,11 @@ typedef enum{
          //        [self.mapView addAnnotation:anno];
          
          // 让地图跳转到起点所在的区域
-         MKCoordinateRegion region = MKCoordinateRegionMake(intrItem.placemark.location.coordinate, MKCoordinateSpanMake(0.05, 0.05));
-         [self.mapView setRegion:region];
+//         MKCoordinateRegion region = MKCoordinateRegionMake(intrItem.placemark.location.coordinate, MKCoordinateSpanMake(0.05, 0.05));
+//         [self.mapView setRegion:region];
          
          //创建终点
-         [_geocoder  reverseGeocodeLocation:local1 completionHandler:
+         [_geocoder  reverseGeocodeLocation:model2.pointLocation completionHandler:
           ^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
              
              //destItem可以理解为地图上的一个点

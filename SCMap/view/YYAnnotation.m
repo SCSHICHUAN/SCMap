@@ -9,6 +9,4 @@
 #import "YYAnnotation.h"
 
 @implementation YYAnnotation
-
-
 @end

@@ -7,9 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-
+@class CLLocation;
 @interface PointModel : NSObject
-@property (nonatomic,strong)NSString *logitude;
-@property (nonatomic,strong)NSString *latitude;
+@property (nonatomic,strong)CLLocation *pointLocation;
+@property (nonatomic,strong)NSString *name;
+@property (nonatomic,strong)NSString *thoroughfare;
+@property (nonatomic,strong)NSString *subLocality;
+@property (nonatomic,strong)NSString *locality;
+@property (nonatomic,strong)NSString *speceTitle;
+
 -(PointModel *)initWithDict:(NSDictionary *)dict;
 @end
