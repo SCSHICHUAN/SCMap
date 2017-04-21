@@ -39,8 +39,8 @@
     
     if (dresssnName.length == 0) {
         nameCount +=1;
-        self.localName.text = [NSString stringWithFormat:@"第%d条",nameCount];
-        self.localName.font = [UIFont boldSystemFontOfSize:16];
+        self.localName.text = @"◉";
+        self.localName.font = [UIFont boldSystemFontOfSize:30];
         self.localName.textColor = [UIColor colorWithRed:5.0/255 green:124.0/255 blue:255.0/255 alpha:1.0];
         self.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.2];
     }else{
