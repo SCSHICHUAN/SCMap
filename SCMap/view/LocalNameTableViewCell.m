@@ -40,13 +40,13 @@
     if (dresssnName.length == 0) {
         nameCount +=1;
         self.localName.text = @"◉";
-        self.localName.font = [UIFont boldSystemFontOfSize:30];
+        self.localName.font = [UIFont boldSystemFontOfSize:20];
         self.localName.textColor = [UIColor colorWithRed:5.0/255 green:124.0/255 blue:255.0/255 alpha:1.0];
         self.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.2];
     }else{
-        self.localName.textColor = [UIColor whiteColor];
+        self.localName.textColor = [UIColor blackColor];
         self.localName.font = [UIFont systemFontOfSize:17];
-        self.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.7];
+        self.backgroundColor = [UIColor clearColor];
     }
     
 }

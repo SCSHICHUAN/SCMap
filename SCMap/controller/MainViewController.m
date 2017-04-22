@@ -153,10 +153,11 @@ typedef enum{
 -(UITableView *)tableView
 {
     if (_tableView == nil) {
-        _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height-64)];
+        _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, [UIScreen mainScreen].bounds.size.width, 5*25.0)];
         _tableView.backgroundColor = [UIColor clearColor];
         _tableView.delegate = self;
         _tableView.dataSource = self;
+        _tableView.separatorStyle = NO;
         
         UISwipeGestureRecognizer *swipwe = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swiweLift:)];
         swipwe.direction = UISwipeGestureRecognizerDirectionLeft;
@@ -261,6 +262,7 @@ typedef enum{
         self.headLabel.font = [UIFont systemFontOfSize:15];
         self.tabBarController.tabBar.frame = CGRectMake(0, kScreenHeight, kScreenWith, 44);
     } completion:^(BOOL finished) {
+        self.tableView.frame = CGRectMake(0, 65, kScreenWith,5*25.0);
         [self.tableView removeFromSuperview];
     }];
 }
@@ -296,25 +298,25 @@ typedef enum{
     
     
 //    //1.创建动画
-//    CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@"bounds"];
-//    //2.设置关键帧动画的values
-//    NSValue *value0 = [NSValue valueWithCGRect:self.button3.frame];
-//    NSValue *value1 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, (kScreenWith-10)*0.5, (kScreenHeight-260)*0.5)];
-//    NSValue *value2 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, (kScreenWith-10)*1.2, (kScreenHeight-260)*1.2)];
-//    NSValue *value3 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10, kScreenHeight-260)];
-//    animation.values = @[value0,value1,value2,value3];
-//    //3.添加动画
-//    [self.wordView.layer addAnimation:animation forKey:nil];
+    CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@"bounds"];
+    //2.设置关键帧动画的values
+    NSValue *value0 = [NSValue valueWithCGRect:self.button3.frame];
+    NSValue *value1 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))-100, (kScreenWith-10)*0.5, (kScreenHeight-260)*0.5)];
+    NSValue *value2 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))-50, (kScreenWith-10)*1.2, (kScreenHeight-260)*1.2)];
+    NSValue *value3 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10, kScreenHeight-260)];
+    animation.values = @[value0,value1,value2,value3];
+    //3.添加动画
+    [self.wordView.layer addAnimation:animation forKey:nil];
     
    
-    
-    [UIView animateWithDuration:0.2 animations:^{
-        self.wordView.frame =  CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10, 2);
-    } completion:^(BOOL finished) {
-        [UIView animateWithDuration:0.2 animations:^{
-            self.wordView.frame =  CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10, kScreenHeight-260);
-        } completion:nil];
-    }];
+//    
+//    [UIView animateWithDuration:0.2 animations:^{
+//        self.wordView.frame =  CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10, 2);
+//    } completion:^(BOOL finished) {
+//        [UIView animateWithDuration:0.2 animations:^{
+           self.wordView.frame =  CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10, kScreenHeight-260);
+//        } completion:nil];
+//    }];
     
     
     
@@ -407,12 +409,13 @@ typedef enum{
     UILongPressGestureRecognizer *mTap = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(tapPress:)];
     [self.mapView addGestureRecognizer:mTap];
     
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showTabView)];
+    [self.navigationHeadView addGestureRecognizer:tap];
+
     UITapGestureRecognizer *mTap2 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapPress2:)];
     [self.mapView addGestureRecognizer:mTap2];
 
     
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showTabView)];
-    [self.navigationHeadView addGestureRecognizer:tap];
     
     pointCount = 0;
    
@@ -564,7 +567,6 @@ typedef enum{
 -(void)gprsUser
 {
     
-    
     [self.tableView removeFromSuperview];
     
     CLLocationCoordinate2D loc = [_userLocation coordinate];
@@ -599,6 +601,7 @@ typedef enum{
              
              self.headLabel.text = placemark.subLocality;
             
+
              
              [self.nameArray addObject:placemark.name];
              [self.nameArray addObject:placemark.thoroughfare];
@@ -669,6 +672,9 @@ typedef enum{
 
 -(void)line
 {
+    if (self.pointArray.count<2) {
+        return;
+    }
     
     PointModel *model1,*model2;
     
@@ -788,16 +794,6 @@ typedef enum{
 #pragma mark - UITableViewDataSource
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    
-    CGFloat tabVieHeight =  self.nameArray.count*44.0;
-    
-    if (tabVieHeight < kScreenHeight-65-44) {
-        self.tableView.frame = CGRectMake(0, 65, kScreenWith,tabVieHeight);
-    }else if (tabVieHeight > kScreenHeight-65-44) {
-        self.tableView.frame = CGRectMake(0, 65, kScreenWith, kScreenHeight-65-44);
-    }
-    
-    
     return self.nameArray.count;
 }
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -805,6 +801,7 @@ typedef enum{
     LocalNameTableViewCell *cell = [LocalNameTableViewCell LocalNameTableViewCellWithTableView:tableView];
     
     cell.dresssnName = self.nameArray[self.nameArray.count-1-indexPath.row];
+    cell.selectionStyle =  UITableViewCellSelectionStyleNone;
     return cell;
 }
 
@@ -813,8 +810,26 @@ typedef enum{
 {
     NSLog(@"你点击了第行 = %ld",(long)indexPath.row);
 }
-
-
+-(CGFloat )tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 25;
+}
+//获取当前的tableView的offset
+-(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    CGFloat tabVieHeight = self.nameArray.count*25.0;
+   
+    [UIView animateWithDuration:0.25 animations:^{
+        if (tabVieHeight < kScreenHeight-65-44) {
+            self.tableView.frame = CGRectMake(0, 65, kScreenWith,tabVieHeight);
+        }else if (tabVieHeight > kScreenHeight-65-44) {
+            self.tableView.frame = CGRectMake(0, 65, kScreenWith, kScreenHeight-65-44);
+        }
+    } completion:^(BOOL finished) {
+        
+    }];
+    
+}
 
 
 
