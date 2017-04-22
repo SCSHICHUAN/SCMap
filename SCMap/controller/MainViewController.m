@@ -273,10 +273,10 @@ typedef enum{
     [self.view bringSubviewToFront:self.button2];
     [self.view bringSubviewToFront:self.button3];
     [self.view bringSubviewToFront:self.navigationHeadView];
-    double higeht = self.tableView.bounds.size.height;
     self.tableView.frame = CGRectMake(0,65, kScreenWith, 0);
     [UIView animateWithDuration:0.25 animations:^{
-          self.tableView.frame = CGRectMake(0, 65, kScreenWith, higeht);
+         [self.tableView setContentOffset:CGPointZero];
+          self.tableView.frame = CGRectMake(0, 65, kScreenWith, 5*25);
           self.navigationHeadView.frame = CGRectMake(0, 0, kScreenWith, 64);
           self.headLabel.frame = CGRectMake(0, 64/2-20/2+10, kScreenWith, 20);
           self.headLabel.font = [UIFont systemFontOfSize:20];
@@ -603,10 +603,34 @@ typedef enum{
             
 
              
-             [self.nameArray addObject:placemark.name];
-             [self.nameArray addObject:placemark.thoroughfare];
-             [self.nameArray addObject:placemark.subLocality];
-             [self.nameArray addObject:placemark.locality];
+             NSString *name111,*thoroughfare111,*subLocality111,*locality111;
+             
+             name111 = placemark.name;
+             thoroughfare111 = placemark.thoroughfare;
+             subLocality111 = placemark.subLocality;
+             locality111 = placemark.locality;
+             
+             if (!(name111 == nil)) {
+                 [self.nameArray addObject:name111];
+             }else{
+                 name111 =@"";
+             }
+             if (!(thoroughfare111 == nil)) {
+                 [self.nameArray addObject:thoroughfare111];
+             }else{
+                 thoroughfare111 =@"";
+             }
+             if (!(subLocality111==nil)) {
+                 [self.nameArray addObject:subLocality111];
+             }else{
+                 subLocality111 = @"";
+             }
+             if (!(locality111 == nil)) {
+                 [self.nameArray addObject:locality111];
+             }else{
+                 locality111 =@"";
+             }
+             
              [self.nameArray addObject:@""];
              
              
@@ -631,10 +655,10 @@ typedef enum{
                  
                  pointCount +=1;
                  NSDictionary *dict = @{@"pointLocation":location,
-                                        @"name":placemark.name,
-                                        @"thoroughfare":placemark.thoroughfare,
-                                        @"subLocality":placemark.subLocality,
-                                        @"locality":placemark.locality,
+                                        @"name":name111,
+                                        @"thoroughfare":thoroughfare111,
+                                        @"subLocality":subLocality111,
+                                        @"locality":locality111,
                                         @"speceTitle":[NSString stringWithFormat:@"%d",pointCount]
                                         };
                  
