@@ -25,7 +25,7 @@ typedef enum{
 
 
 
-@interface MainViewController ()<CLLocationManagerDelegate,MKMapViewDelegate,UITableViewDelegate,UITableViewDataSource>
+@interface MainViewController ()<CLLocationManagerDelegate,MKMapViewDelegate,UITableViewDelegate,UITableViewDataSource,UITextFieldDelegate>
 {
    MKUserLocation *_userLocation;
    CLLocation *_cLocation;
@@ -210,7 +210,7 @@ typedef enum{
 -(UIView *)wordView
 {
     if (_wordView == nil) {
-        _wordView = [[UIView alloc] initWithFrame:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10, kScreenHeight-260)];
+        _wordView = [[UIView alloc] initWithFrame:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))-60, kScreenWith-10, kScreenHeight-260)];
         _wordView.backgroundColor = [UIColor whiteColor];
         _wordView.layer.cornerRadius = 8;
         _wordView.layer.shadowColor = [UIColor blackColor].CGColor;
@@ -274,6 +274,7 @@ typedef enum{
         _TextField3 = [[UITextField alloc] initWithFrame:CGRectMake(60, 70+160, kScreenWith - 90-10, 35)];
         _TextField3.borderStyle = UITextBorderStyleRoundedRect;
         _TextField3.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.2];
+        _TextField3.delegate = self;
     }
     return _TextField3;
 }
@@ -338,8 +339,8 @@ typedef enum{
     //2.设置关键帧动画的values
     NSValue *value0 = [NSValue valueWithCGRect:self.button3.frame];
     NSValue *value1 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))-100, (kScreenWith-10)*0.5, (kScreenHeight-260)*0.5)];
-    NSValue *value2 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))-50, (kScreenWith-10)*1.2, (kScreenHeight-260)*1.2)];
-    NSValue *value3 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10, kScreenHeight-260)];
+    NSValue *value2 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))-70, (kScreenWith-10)*1.2, (kScreenHeight-260)*1.2)];
+    NSValue *value3 = [NSValue valueWithCGRect:CGRectMake(5,(CGRectGetMaxY(self.button3.frame))-60, kScreenWith-10, kScreenHeight-260)];
     animation.values = @[value0,value1,value2,value3];
     //3.添加动画
     [self.wordView.layer addAnimation:animation forKey:nil];
@@ -350,7 +351,7 @@ typedef enum{
 //        self.wordView.frame =  CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10, 2);
 //    } completion:^(BOOL finished) {
 //        [UIView animateWithDuration:0.2 animations:^{
-           self.wordView.frame =  CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10, kScreenHeight-260);
+           self.wordView.frame =  CGRectMake(5,(CGRectGetMaxY(self.button3.frame))-60, kScreenWith-10, kScreenHeight-260);
 //        } completion:nil];
 //    }];
     
@@ -394,11 +395,8 @@ typedef enum{
 }
 -(void)gprsUser6
 {
-    // 获取地图上所有的大头针数据模型
-    NSArray *annotations = self.mapView.annotations;
-    
-    // 移除大头针
-    [self.mapView removeAnnotations:annotations];
+    [self tapPress2:nil];
+    [self hiddenWordSubView];
 }
 
 
@@ -944,7 +942,21 @@ typedef enum{
     }];
     
 }
-
+#pragma mark -UITextFieldDelegate
+-(void)textFieldDidBeginEditing:(UITextField *)textField
+{
+    NSLog(@"%s",__func__);
+    CGRect fream;
+    fream = self.wordView.frame;
+    fream.origin.y = fream.origin.y-200.0;
+    
+    [UIView animateWithDuration:0.25 animations:^{
+        self.wordView.frame = fream;
+    }];
+    
+    
+    
+}
 
 
 
