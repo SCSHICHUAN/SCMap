@@ -41,6 +41,9 @@ typedef enum{
 @property(nonatomic,strong)UIButton *button1;
 @property(nonatomic,strong)UIButton *button2;
 @property(nonatomic,strong)UIButton *button3;
+@property(nonatomic,strong)UIButton *button4;
+@property(nonatomic,strong)UIButton *button5;
+@property(nonatomic,strong)UIButton *button6;
 @property(nonatomic,strong)UIView *navigationHeadView;
 @property(nonatomic,strong)CLGeocoder *geocoder;//地理编码工具
 @property(nonatomic,strong)UILabel *headLabel;
@@ -51,10 +54,10 @@ typedef enum{
 @property(nonatomic,strong)UITextField *titleHead;
 @property(nonatomic,strong)UITextField *TextField1;
 @property(nonatomic,strong)UITextField *TextField2;
+@property(nonatomic,strong)UITextField *TextField3;
 @property(nonatomic,strong)UILabel *label1;
 @property(nonatomic,strong)UILabel *label2;
-@property(nonatomic,strong)UIButton *button4;
-@property(nonatomic,strong)UIButton *button5;
+@property(nonatomic,strong)UILabel *label3;
 @property(nonatomic,strong)UIView *wordView;
 
 @end
@@ -124,6 +127,20 @@ typedef enum{
         [_button5 addTarget:self action:@selector(gprsUser5) forControlEvents:UIControlEventTouchUpInside];
     }
     return _button5;
+}
+-(UIButton *)button6
+{
+    if (_button6 == nil) {
+        _button6 = [UIButton buttonWithType:UIButtonTypeSystem];
+        _button6.backgroundColor = [UIColor colorWithRed:5.0/255 green: 200.0/255 blue: 124.0/255 alpha:1.0];
+        _button6.frame = CGRectMake(kScreenWith/2 - 80/2, 70+60+150, 80,80);
+        _button6.layer.cornerRadius = 40;
+        [_button6 setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [_button6 setTitle:@"出发" forState:UIControlStateNormal];
+        _button6.titleLabel.font = [UIFont boldSystemFontOfSize:20];
+        [_button6 addTarget:self action:@selector(gprsUser6) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _button6;
 }
 -(UIView *)navigationHeadView
 {
@@ -222,6 +239,17 @@ typedef enum{
     }
     return _label2;
 }
+-(UILabel *)label3
+{
+    if (_label3 == nil) {
+        _label3 = [[UILabel alloc] initWithFrame:CGRectMake(12, 70+160, 80, 35)];
+        _label3.font = [UIFont boldSystemFontOfSize:17];
+        _label3.textColor = [UIColor colorWithRed:5.0/255 green:124.0/255 blue:255.0/255 alpha:1.0];
+        _label3.text = @"目的";
+    }
+    return _label3;
+}
+
 -(UITextField *)TextField1
 {
     if (_TextField1 == nil) {
@@ -240,7 +268,15 @@ typedef enum{
     }
     return _TextField2;
 }
-
+-(UITextField *)TextField3
+{
+    if (_TextField3 == nil) {
+        _TextField3 = [[UITextField alloc] initWithFrame:CGRectMake(60, 70+160, kScreenWith - 90-10, 35)];
+        _TextField3.borderStyle = UITextBorderStyleRoundedRect;
+        _TextField3.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.2];
+    }
+    return _TextField3;
+}
 
 
 
@@ -327,25 +363,36 @@ typedef enum{
 {
     [self.wordView addSubview:self.label1];
     [self.wordView addSubview:self.label2];
+    [self.wordView addSubview:self.label3];
     [self.wordView addSubview:self.TextField1];
     [self.wordView addSubview:self.TextField2];
+    [self.wordView addSubview:self.TextField3];
     [self.wordView addSubview:self.button4];
     [self.wordView addSubview:self.button5];
+    [self.wordView addSubview:self.button6];
 }
 -(void)hiddenWordSubView
 {
     [self.label1 removeFromSuperview] ;
     [self.label2 removeFromSuperview];
+    [self.label3 removeFromSuperview];
     [self.TextField1 removeFromSuperview];
     [self.TextField2 removeFromSuperview];
+    [self.TextField3 removeFromSuperview];
     [self.button4 removeFromSuperview];
     [self.button5 removeFromSuperview];
+    [self.button6 removeFromSuperview];
 }
--(void)gprsUser4
-{
-    
-}
+
 -(void)gprsUser5
+{
+    // 获取地图上所有的大头针数据模型
+    NSArray *annotations = self.mapView.annotations;
+    
+    // 移除大头针
+    [self.mapView removeAnnotations:annotations];
+}
+-(void)gprsUser6
 {
     // 获取地图上所有的大头针数据模型
     NSArray *annotations = self.mapView.annotations;
@@ -693,6 +740,49 @@ typedef enum{
 
 }
 
+-(void)gprsUser4
+{
+    
+    [self tapPress2:nil];
+    [self gprsUser5];
+    
+    [_geocoder geocodeAddressString:self.TextField1.text completionHandler:
+     ^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
+         
+         
+         
+         MKPlacemark *placemark = [[MKPlacemark alloc]initWithPlacemark:placemarks.lastObject];
+         //intrItem可以理解为地图上的一个点
+         MKMapItem *intrItem = [[MKMapItem alloc]initWithPlacemark:placemark];
+         
+         //        添加一个小别针到地图上
+         YYAnnotation *anno = [[YYAnnotation alloc]init];
+         anno.coordinate = intrItem.placemark.location.coordinate;
+                [self.mapView addAnnotation:anno];
+         
+         // 让地图跳转到起点所在的区域
+                  MKCoordinateRegion region = MKCoordinateRegionMake(intrItem.placemark.location.coordinate, MKCoordinateSpanMake(0.05, 0.05));
+                  [self.mapView setRegion:region];
+         
+         //创建终点
+          [_geocoder geocodeAddressString:self.TextField2.text completionHandler:
+          ^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
+              
+              //destItem可以理解为地图上的一个点
+              MKMapItem *destItem = [[MKMapItem alloc]initWithPlacemark:[[MKPlacemark alloc]initWithPlacemark:[placemarks lastObject]]];
+              
+              
+              //        添加一个小别针到地图上
+              YYAnnotation *anno = [[YYAnnotation alloc]init];
+              anno.coordinate = destItem.placemark.location.coordinate;
+                          [self.mapView addAnnotation:anno];
+              
+              //调用下面方法发送请求
+              [self moveWith:intrItem toDestination:destItem];
+          }];
+     }];
+    
+}
 
 -(void)line
 {
@@ -753,7 +843,7 @@ typedef enum{
     
     request.source = formPlce;
     request.destination = endPlace;
-    request.requestsAlternateRoutes = MKDirectionsTransportTypeWalking;//步行
+    request.requestsAlternateRoutes = MKDirectionsTransportTypeAny;//步行
     
     self.directs = [[MKDirections alloc]initWithRequest:request];
     
