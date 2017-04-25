@@ -31,6 +31,9 @@ typedef enum{
     CLLocation *_cLocation;
     int pointCount;
     CGFloat  aggregateDistance;
+    float currentWorkTime;
+    float planWorkTime;
+    float planWorkSpeedFloat;
     
     
 }
@@ -45,6 +48,7 @@ typedef enum{
 @property(nonatomic,strong)UIButton *button4;
 @property(nonatomic,strong)UIButton *button5;
 @property(nonatomic,strong)UIButton *button6;
+@property(nonatomic,strong)UIButton *button7;
 @property(nonatomic,strong)UIView *navigationHeadView;
 @property(nonatomic,strong)CLGeocoder *geocoder;//地理编码工具
 @property(nonatomic,strong)UILabel *headLabel;
@@ -52,7 +56,7 @@ typedef enum{
 @property(nonatomic,strong)NSMutableArray *nameArray;
 @property(nonatomic,strong)NSMutableArray *pointArray;
 @property(strong,nonatomic)MKDirections *directs;//用于发送请求给服务器，获取规划好后的路线。
-@property(nonatomic,strong)UITextField *titleHead;
+@property(nonatomic,strong)UITextView *titleHead;
 @property(nonatomic,strong)UITextField *TextField1;
 @property(nonatomic,strong)UITextField *TextField2;
 @property(nonatomic,strong)UITextField *TextField3;
@@ -66,6 +70,8 @@ typedef enum{
 //自己纬度
 @property (weak, nonatomic) IBOutlet UILabel *latitudeLabel;
 @property(nonatomic,strong)UILabel *timeLabel;
+@property(nonatomic,strong)UILabel *decesentLabel;
+@property(nonatomic,strong)UILabel *planWorkSpeed;
 @property(nonatomic,strong)CLLocation* lastAccurateLocation;
 @property(nonatomic,strong)UILabel *speedLabel;
 @property(nonatomic,strong)UILabel *speedAverageLabel;
@@ -90,7 +96,7 @@ typedef enum{
         _button1 = [UIButton buttonWithType:UIButtonTypeSystem];
         [_button1 setImage:[UIImage imageNamed: @"gps7"] forState:UIControlStateNormal];
         _button1.frame = CGRectMake(kScreenWith - 40,64+5,35, 35);
-        [_button1 addTarget:self action:@selector(gprsUser) forControlEvents:UIControlEventTouchUpInside];
+        [_button1 addTarget:self action:@selector(gprsUser1) forControlEvents:UIControlEventTouchUpInside];
     }
     return _button1;
 }
@@ -154,6 +160,17 @@ typedef enum{
     }
     return _button6;
 }
+-(UIButton *)button7
+{
+    if (_button7 == nil) {
+        _button7 = [UIButton buttonWithType:UIButtonTypeSystem];
+        [_button7 setImage:[UIImage imageNamed: @"level8"] forState:UIControlStateNormal];
+        _button7.frame = CGRectMake(kScreenWith - 40,64+5+10+35+10+35+10+35,35, 35);
+        [_button7 addTarget:self action:@selector(showPate) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _button7;
+}
+
 -(UIView *)navigationHeadView
 {
     if (_navigationHeadView == nil) {
@@ -209,10 +226,10 @@ typedef enum{
     }
     return _pointArray;
 }
--(UITextField *)titleHead
+-(UITextView *)titleHead
 {
     if (_titleHead == nil) {
-        _titleHead = [[UITextField alloc] initWithFrame:CGRectMake(5, 44, kScreenWith-5, 20)];
+        _titleHead = [[UITextView alloc] initWithFrame:CGRectMake(5, 44, kScreenWith-5, 45)];
         _titleHead.font = [UIFont systemFontOfSize:15];
         _titleHead.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.5];
         _titleHead.textColor = [UIColor blackColor];
@@ -333,6 +350,30 @@ typedef enum{
     }
     return _speedAverageLabel;
 }
+-(UILabel *)decesentLabel
+{
+    if (_decesentLabel == nil) {
+        _decesentLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, [UIScreen mainScreen].bounds.size.height-100, [UIScreen mainScreen].bounds.size.width, 17)];
+        _decesentLabel.backgroundColor = [UIColor blackColor];
+        _decesentLabel.textColor = [UIColor whiteColor];
+        _decesentLabel.textAlignment = NSTextAlignmentCenter;
+        _decesentLabel.font = [UIFont systemFontOfSize:17];
+    }
+    return _decesentLabel;
+    
+}
+-(UILabel *)planWorkSpeed
+{
+    if (_planWorkSpeed == nil) {
+        _planWorkSpeed = [[UILabel alloc] initWithFrame:CGRectMake(0, [UIScreen mainScreen].bounds.size.height-50, [UIScreen mainScreen].bounds.size.width, 17)];
+        _planWorkSpeed.backgroundColor = [UIColor blackColor];
+        _planWorkSpeed.textColor = [UIColor whiteColor];
+        _planWorkSpeed.textAlignment = NSTextAlignmentCenter;
+        _planWorkSpeed.font = [UIFont systemFontOfSize:17];
+    }
+    return _planWorkSpeed;
+    
+}
 -(UILabel *)timeLabel
 {
     if (_timeLabel == nil) {
@@ -345,14 +386,25 @@ typedef enum{
     return _timeLabel;
     
 }
+
 -(UIView *)plate
 {
     if (_plate == nil) {
         _plate = [[UIView alloc] initWithFrame:self.view.bounds];
         _plate.backgroundColor = [UIColor blackColor];
+        [_plate addSubview:self.decesentLabel];
+        [_plate addSubview:self.planWorkSpeed];
         [_plate addSubview:self.timeLabel];
         [_plate addSubview:self.speedLabel];
         [_plate addSubview:self.speedAverageLabel];
+        
+        UITapGestureRecognizer *backMapTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(backMap)];
+        backMapTap.numberOfTouchesRequired = 2;
+        [self.plate addGestureRecognizer:backMapTap];
+        UITapGestureRecognizer *backMapTap2 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showPate)];
+        backMapTap2.numberOfTouchesRequired = 3;
+        [self.mapView addGestureRecognizer:backMapTap2];
+
     }
     return _plate;
 }
@@ -386,6 +438,7 @@ typedef enum{
     [self.view bringSubviewToFront:self.button1];
     [self.view bringSubviewToFront:self.button2];
     [self.view bringSubviewToFront:self.button3];
+    [self.view bringSubviewToFront:self.button7];
     [self.view bringSubviewToFront:self.navigationHeadView];
     self.tableView.frame = CGRectMake(0,65, kScreenWith, 0);
     [UIView animateWithDuration:0.25 animations:^{
@@ -475,10 +528,34 @@ typedef enum{
 {
     [self tapPress2:nil];
     [self hiddenWordSubView];
-    [self.view addSubview:self.plate];
+    
+    [self showPate];
+   
     
 }
+-(void)showPate
+{
+    self.plate.frame = CGRectMake(0, kScreenHeight, kScreenWith, kScreenHeight);
+    [self.view addSubview:self.plate];
+    [UIView animateWithDuration:0.25 animations:^{
+        self.tabBarController.tabBar.frame = CGRectMake(0, kScreenHeight, kScreenWith, 44);
+        self.plate.frame = CGRectMake(0, 0, kScreenWith, kScreenHeight);
+        
+    }];
 
+}
+-(void)backMap
+{
+  
+    [UIView animateWithDuration:0.25 animations:^{
+        self.tabBarController.tabBar.frame = CGRectMake(0, kScreenHeight-44, kScreenWith, 44);
+        self.plate.frame = CGRectMake(0, kScreenHeight, kScreenWith, kScreenHeight);
+        
+    } completion:^(BOOL finished) {
+         [self.plate removeFromSuperview];
+    }];
+   
+}
 
 
 
@@ -498,9 +575,7 @@ typedef enum{
     [self.mapView setShowsUserLocation:YES];
     [self.view addSubview:self.mapView];
     [self.view addSubview:self.titleHead];
-    //    [self.view addSubview:self.speedLabel];
-    //    [self.view addSubview:self.speedAverageLabel];
-    //    [self.view addSubview:self.timeLabel];
+   
     
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];//屏幕常亮
     
@@ -522,11 +597,13 @@ typedef enum{
     self.locationManager.delegate = self;
     self.locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;  //设置最高的精度
     [self.locationManager startUpdatingLocation];  //开始定位
+   
     [self.view addSubview:self.button1];
     [self.view addSubview:self.button2];
     [self.view addSubview:self.button3];
+    [self.view addSubview:self.button7];
     
-    [self performSelector:@selector(gprsUser) withObject:nil afterDelay:2.0];
+    [self performSelector:@selector(gprsUser1) withObject:nil afterDelay:2.0];
     [self.view addSubview:self.navigationHeadView];
     
     [self.navigationHeadView addSubview:self.headLabel];
@@ -565,6 +642,7 @@ typedef enum{
 }
 - (void)tapPress2:(UITapGestureRecognizer *)tapGesture
 {
+    [self.titleHead resignFirstResponder];
     [UIView animateWithDuration:0.2 animations:^{
         self.wordView.frame =  CGRectMake(5,(CGRectGetMaxY(self.button3.frame))+10, kScreenWith-10,2);
         [self hiddenWordSubView];
@@ -577,12 +655,7 @@ typedef enum{
     }];
 }
 
--(void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
-{
-    
-    
-    //    [self addAnnotation];
-}
+
 
 
 
@@ -611,85 +684,8 @@ typedef enum{
     
 }
 
-
-/**
- *  当我们添加大头针数据模型时, 就会调用这个方法, 查找对应的大头针视图
- *
- *  @param mapView    地图
- *  @param annotation 大头针数据模型
- *
- *  @return 大头针视图
- *  注意: 如果这个方法, 没有实现, 或者, 这个方法返回nil, 那么系统就会调用系统默认的大头针视图
- */
-//-(MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation
-//{
-//    // 如果是系统的大头针数据模型, 那么使用系统默认的大头针视图,
-//    if([annotation isKindOfClass:[MKUserLocation class]])
-//    {
-//        return nil;
-//    }
-//
-//    // 如果想要自定义大头针视图, 必须使用MKAnnotationView 或者 继承 MKAnnotationView 的子类
-//
-//    // 设置循环利用标识
-//    static NSString *pinID = @"pinID";
-//
-//    // 从缓存池取出大头针数据视图
-//    MKAnnotationView *customView = [mapView dequeueReusableAnnotationViewWithIdentifier:pinID];
-//
-//    // 如果取出的为nil , 那么就手动创建大头针视图
-//    if (customView == nil) {
-//        customView = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:pinID];
-//    }
-//
-//    // 1. 设置大头针图片
-//    customView.image = [UIImage imageNamed:@"push_pin"];
-//
-//
-//    // 2. 设置弹框
-//    customView.canShowCallout = YES;
-//
-//    // 2.1 设置大头针偏移量
-//    //    customView.centerOffset = CGPointMake(100, -100);
-//    // 2.2 设置弹框的偏移量
-//    //    customView.calloutOffset = CGPointMake(100, 100);
-//
-//
-////    // 3. 自定义弹框
-////    // 3.1 设置弹框左侧的视图
-////    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
-////    imageView.image = [UIImage imageNamed:@"2"];
-////    customView.leftCalloutAccessoryView = imageView;
-////
-////    // 3.2 设置弹框右侧视图
-////    UIImageView *imageView2 = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
-////    imageView2.image = [UIImage imageNamed:@"3"];
-////    customView.rightCalloutAccessoryView = imageView2;
-////
-////    // 3.3 设置弹框的详情视图(一定要注意,对应的版本)
-////    if ([[UIDevice currentDevice].systemVersion floatValue] >= 9.0) {
-////        customView.detailCalloutAccessoryView = [UISwitch new];
-////    }
-//
-//    // 设置大头针视图可以被拖拽
-//    customView.draggable = YES;
-//
-//    return customView;
-//    return nil;
-//}
-//
-
-
-
-
-
-
-
-
-
-
 //定位当前的位置
--(void)gprsUser
+-(void)gprsUser1
 {
     
     [self.tableView removeFromSuperview];
@@ -705,6 +701,7 @@ typedef enum{
 {
     [self getLocalNameWithLocation:_userLocation.location andType:@"0"];
 }
+//location 来反编码出地理名字
 -(void)getLocalNameWithLocation:(CLLocation *)location andType:(NSString *)type
 {
     
@@ -794,7 +791,7 @@ typedef enum{
              annotation.coordinate=loc;
              annotation.title = placemark.name;
              
-             if ([type isEqualToString:@"1"]) {
+             
                  
                  [self.mapView addAnnotation:annotation];
                  
@@ -813,16 +810,7 @@ typedef enum{
                  
                  
                  [self.pointArray addObject:model];
-             }
-             
-             
-             
-             
-             
-             
-             
-             
-             
+                          
              self.titleHead.text = str1;
              [self.mapView addSubview:self.titleHead];
              [self.tableView reloadData];
@@ -837,12 +825,14 @@ typedef enum{
      }];
     
 }
-
+//给出两个地名算出路线
 -(void)gprsUser4
 {
     [self.mapView removeOverlays:self.mapView.overlays];//移除划的线路
     [self tapPress2:nil];
     [self gprsUser5];
+    
+    
     
     [_geocoder geocodeAddressString:self.TextField1.text completionHandler:
      ^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
@@ -881,7 +871,7 @@ typedef enum{
      }];
     
 }
-
+//根据location来出两地的路线
 -(void)line
 {
     if (self.pointArray.count<2) {
@@ -941,7 +931,7 @@ typedef enum{
     
     request.source = formPlce;
     request.destination = endPlace;
-    request.requestsAlternateRoutes = MKDirectionsTransportTypeAny;//步行
+    request.requestsAlternateRoutes = MKDirectionsTransportTypeWalking;//步行
     
     self.directs = [[MKDirections alloc]initWithRequest:request];
     
@@ -970,13 +960,53 @@ typedef enum{
         //路线中的每一步
         NSArray <MKRouteStep *>*stepsArray = rute.steps;
         
+        float destence;
+        destence = 0;
+
         //遍历
         for (MKRouteStep *step in stepsArray) {
-            
+            destence += step.distance;
             [self.mapView addOverlay:step.polyline];
+        }
+        NSLog(@"destence= [ %.2fkm ]",destence/1000.0);
+        // 收响应结果 MKDirectionsResponse
+        // MKRoute 表示的一条完整的路线信息 (从起点到终点) (包含多个步骤)
+        
+        self.decesentLabel.text = [NSString stringWithFormat:@"你上班的路程是：%.2f km",destence/1000.0];
+        
+        NSDate  *date = [NSDate date];
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+        formatter.dateFormat = @"hh";
+        NSString *dateStr1 = [formatter stringFromDate:date];
+        
+        formatter.dateFormat = @"mm";
+        NSString *dateStr2 = [formatter stringFromDate:date];
+        
+        currentWorkTime = [dateStr1 floatValue] + [dateStr2 floatValue]/60.0;
+        planWorkTime = [self.TextField3.text floatValue] + [self.TextField4.text  floatValue]/60.0;
+        
+        
+        self.planWorkSpeed.text = [NSString stringWithFormat:@"你上班的速度：%.2f km/h",(destence/1000.0)/(planWorkTime-currentWorkTime)];
+        
+        
+        //取出最后一条路线
+        MKRoute *rute2 = routesArray.lastObject;
+        
+        //路线中的每一步
+        NSArray <MKRouteStep *>*stepsArray2 = rute2.steps;
+        
+        //遍历
+        for (MKRouteStep *step2 in stepsArray2) {
+            
+            [self.mapView addOverlay:step2.polyline];
         }
         // 收响应结果 MKDirectionsResponse
         // MKRoute 表示的一条完整的路线信息 (从起点到终点) (包含多个步骤)
+        
+        
+        
+        
+        
     }];
     
 }
@@ -1104,7 +1134,7 @@ typedef enum{
             
             
             
-            float  speed = 2.23693629 * distance / dTime;   //计算出速度
+            float  speed = 2.23693629 * distance / dTime;  //计算出速度
             speedChina = speed*1.609344;
             if (speedChina<0) {
                 speedChina = 0.0;
@@ -1138,6 +1168,13 @@ typedef enum{
             [self.speedArray removeAllObjects];
         }
         
+        float  backGun = (speedChina-planWorkSpeedFloat);
+
+        if (backGun <0.3) {
+            backGun = 0.3;
+        }
+        
+        self.plate.alpha = backGun;
         
         
     }
@@ -1152,6 +1189,124 @@ typedef enum{
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ *  当我们添加大头针数据模型时, 就会调用这个方法, 查找对应的大头针视图
+ *
+ *  @param mapView    地图
+ *  @param annotation 大头针数据模型
+ *
+ *  @return 大头针视图
+ *  注意: 如果这个方法, 没有实现, 或者, 这个方法返回nil, 那么系统就会调用系统默认的大头针视图
+ */
+//-(MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation
+//{
+//    // 如果是系统的大头针数据模型, 那么使用系统默认的大头针视图,
+//    if([annotation isKindOfClass:[MKUserLocation class]])
+//    {
+//        return nil;
+//    }
+//
+//    // 如果想要自定义大头针视图, 必须使用MKAnnotationView 或者 继承 MKAnnotationView 的子类
+//
+//    // 设置循环利用标识
+//    static NSString *pinID = @"pinID";
+//
+//    // 从缓存池取出大头针数据视图
+//    MKAnnotationView *customView = [mapView dequeueReusableAnnotationViewWithIdentifier:pinID];
+//
+//    // 如果取出的为nil , 那么就手动创建大头针视图
+//    if (customView == nil) {
+//        customView = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:pinID];
+//    }
+//
+//    // 1. 设置大头针图片
+//    customView.image = [UIImage imageNamed:@"push_pin"];
+//
+//
+//    // 2. 设置弹框
+//    customView.canShowCallout = YES;
+//
+//    // 2.1 设置大头针偏移量
+//    //    customView.centerOffset = CGPointMake(100, -100);
+//    // 2.2 设置弹框的偏移量
+//    //    customView.calloutOffset = CGPointMake(100, 100);
+//
+//
+////    // 3. 自定义弹框
+////    // 3.1 设置弹框左侧的视图
+////    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
+////    imageView.image = [UIImage imageNamed:@"2"];
+////    customView.leftCalloutAccessoryView = imageView;
+////
+////    // 3.2 设置弹框右侧视图
+////    UIImageView *imageView2 = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
+////    imageView2.image = [UIImage imageNamed:@"3"];
+////    customView.rightCalloutAccessoryView = imageView2;
+////
+////    // 3.3 设置弹框的详情视图(一定要注意,对应的版本)
+////    if ([[UIDevice currentDevice].systemVersion floatValue] >= 9.0) {
+////        customView.detailCalloutAccessoryView = [UISwitch new];
+////    }
+//
+//    // 设置大头针视图可以被拖拽
+//    customView.draggable = YES;
+//
+//    return customView;
+//    return nil;
+//}
+//
 
 
 
