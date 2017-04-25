@@ -49,6 +49,7 @@ typedef enum{
 @property(nonatomic,strong)UIButton *button5;
 @property(nonatomic,strong)UIButton *button6;
 @property(nonatomic,strong)UIButton *button7;
+@property(nonatomic,strong)UIButton *button8;
 @property(nonatomic,strong)UIView *navigationHeadView;
 @property(nonatomic,strong)CLGeocoder *geocoder;//地理编码工具
 @property(nonatomic,strong)UILabel *headLabel;
@@ -77,7 +78,8 @@ typedef enum{
 @property(nonatomic,strong)UILabel *speedAverageLabel;
 @property(nonatomic,strong)NSMutableArray *speedArray;
 @property(nonatomic,strong)UIView *plate;
-
+@property(nonatomic,strong)UILabel *tipsSpeed;
+@property(nonatomic,strong)NSTimer *timer1;
 @end
 
 @implementation MainViewController
@@ -125,7 +127,7 @@ typedef enum{
     if (_button4 == nil) {
         _button4 = [UIButton buttonWithType:UIButtonTypeSystem];
         _button4.backgroundColor = [UIColor colorWithRed:5.0/255 green:124.0/255 blue:255.0/255 alpha:1.0];
-        _button4.frame = CGRectMake(60, 70+60, 80, 80);
+        _button4.frame = CGRectMake(60, 70+160, 80, 80);
         _button4.layer.cornerRadius = 40;
         [_button4 setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [_button4 setTitle:@"开始计算" forState:UIControlStateNormal];
@@ -138,7 +140,7 @@ typedef enum{
     if (_button5 == nil) {
         _button5 = [UIButton buttonWithType:UIButtonTypeSystem];
         _button5.backgroundColor = [UIColor colorWithRed:5.0/255 green:124.0/255 blue:255.0/255 alpha:1.0];
-        _button5.frame = CGRectMake(kScreenWith - 80-60, 70+60, 80,80);
+        _button5.frame = CGRectMake(kScreenWith - 80-60, 70+160, 80,80);
         _button5.layer.cornerRadius = 40;
         [_button5 setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [_button5 setTitle:@"移除大头" forState:UIControlStateNormal];
@@ -151,15 +153,36 @@ typedef enum{
     if (_button6 == nil) {
         _button6 = [UIButton buttonWithType:UIButtonTypeSystem];
         _button6.backgroundColor = [UIColor colorWithRed:5.0/255 green: 200.0/255 blue: 124.0/255 alpha:1.0];
-        _button6.frame = CGRectMake(kScreenWith/2 - 80/2, 70+60+150, 80,80);
+        _button6.frame = CGRectMake(10, [UIScreen mainScreen].bounds.size.height-90-44, 80,80);
         _button6.layer.cornerRadius = 40;
         [_button6 setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [_button6 setTitle:@"出发" forState:UIControlStateNormal];
         _button6.titleLabel.font = [UIFont boldSystemFontOfSize:20];
+        _button6.layer.shadowColor = [UIColor blackColor].CGColor;
+        _button6.layer.shadowOpacity = 0.5;
+        _button6.layer.shadowOffset = CGSizeMake(0, 0);
         [_button6 addTarget:self action:@selector(gprsUser6) forControlEvents:UIControlEventTouchUpInside];
     }
     return _button6;
 }
+-(UIButton *)button8
+{
+    if (_button8 == nil) {
+        _button8 = [UIButton buttonWithType:UIButtonTypeSystem];
+        _button8.backgroundColor = [UIColor colorWithRed:200.0/255 green: 5.0/255 blue: 124.0/255 alpha:1.0];
+        _button8.frame = CGRectMake(kScreenWith- 80-10, [UIScreen mainScreen].bounds.size.height-90-44, 80,80);
+        _button8.layer.cornerRadius = 40;
+        [_button8 setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [_button8 setTitle:@"结束" forState:UIControlStateNormal];
+        _button8.titleLabel.font = [UIFont boldSystemFontOfSize:20];
+        _button8.layer.shadowColor = [UIColor blackColor].CGColor;
+        _button8.layer.shadowOpacity = 0.5;
+        _button8.layer.shadowOffset = CGSizeMake(0, 0);
+        [_button8 addTarget:self action:@selector(gprsUser8) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _button8;
+}
+
 -(UIButton *)button7
 {
     if (_button7 == nil) {
@@ -271,7 +294,7 @@ typedef enum{
 -(UILabel *)label3
 {
     if (_label3 == nil) {
-        _label3 = [[UILabel alloc] initWithFrame:CGRectMake(12, 70+160, 80, 35)];
+        _label3 = [[UILabel alloc] initWithFrame:CGRectMake(12, 70+70, 80, 35)];
         _label3.font = [UIFont boldSystemFontOfSize:17];
         _label3.textColor = [UIColor colorWithRed:5.0/255 green:124.0/255 blue:255.0/255 alpha:1.0];
         _label3.text = @"目的";
@@ -300,7 +323,7 @@ typedef enum{
 -(UITextField *)TextField3
 {
     if (_TextField3 == nil) {
-        _TextField3 = [[UITextField alloc] initWithFrame:CGRectMake(60, 70+160, (kScreenWith - 90-10)/2-15, 35)];
+        _TextField3 = [[UITextField alloc] initWithFrame:CGRectMake(60, 70+70, (kScreenWith - 90-10)/2-15, 35)];
         _TextField3.borderStyle = UITextBorderStyleRoundedRect;
         _TextField3.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.2];
         _TextField3.keyboardType = UIKeyboardTypeNumberPad;
@@ -312,7 +335,7 @@ typedef enum{
 -(UITextField *)TextField4
 {
     if (_TextField4 == nil) {
-        _TextField4 = [[UITextField alloc] initWithFrame:CGRectMake(60+(kScreenWith - 90-10)/2, 70+160, (kScreenWith - 90-10)/2-15, 35)];
+        _TextField4 = [[UITextField alloc] initWithFrame:CGRectMake(60+(kScreenWith - 90-10)/2, 70+70, (kScreenWith - 90-10)/2-15, 35)];
         _TextField4.borderStyle = UITextBorderStyleRoundedRect;
         _TextField4.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.2];
         _TextField4.delegate = self;
@@ -342,22 +365,22 @@ typedef enum{
 -(UILabel *)speedAverageLabel
 {
     if (_speedAverageLabel == nil) {
-        _speedAverageLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 200, [UIScreen mainScreen].bounds.size.width, 70)];
+        _speedAverageLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 300, [UIScreen mainScreen].bounds.size.width, 40)];
         _speedAverageLabel.backgroundColor = [UIColor blackColor];
-        _speedAverageLabel.textColor = [UIColor whiteColor];
+        _speedAverageLabel.textColor = [UIColor yellowColor];
         _speedAverageLabel.textAlignment = NSTextAlignmentCenter;
-        _speedAverageLabel.font = [UIFont systemFontOfSize:70];
+        _speedAverageLabel.font = [UIFont systemFontOfSize:40];
     }
     return _speedAverageLabel;
 }
 -(UILabel *)decesentLabel
 {
     if (_decesentLabel == nil) {
-        _decesentLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, [UIScreen mainScreen].bounds.size.height-100, [UIScreen mainScreen].bounds.size.width, 17)];
+        _decesentLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, [UIScreen mainScreen].bounds.size.height-100, [UIScreen mainScreen].bounds.size.width, 40)];
         _decesentLabel.backgroundColor = [UIColor blackColor];
         _decesentLabel.textColor = [UIColor whiteColor];
         _decesentLabel.textAlignment = NSTextAlignmentCenter;
-        _decesentLabel.font = [UIFont systemFontOfSize:17];
+        _decesentLabel.font = [UIFont systemFontOfSize:40];
     }
     return _decesentLabel;
     
@@ -386,7 +409,18 @@ typedef enum{
     return _timeLabel;
     
 }
-
+-(UILabel *)tipsSpeed
+{
+    if (_tipsSpeed == nil) {
+        _tipsSpeed = [[UILabel alloc] initWithFrame:CGRectMake(0, 200, [UIScreen mainScreen].bounds.size.width, 70)];        
+        _tipsSpeed.backgroundColor = [UIColor blackColor];
+        _tipsSpeed.textColor = [UIColor whiteColor];
+        _tipsSpeed.textAlignment = NSTextAlignmentCenter;
+        _tipsSpeed.font = [UIFont systemFontOfSize:70];
+    }
+    return _tipsSpeed;
+    
+}
 -(UIView *)plate
 {
     if (_plate == nil) {
@@ -395,6 +429,7 @@ typedef enum{
         [_plate addSubview:self.decesentLabel];
         [_plate addSubview:self.planWorkSpeed];
         [_plate addSubview:self.timeLabel];
+        [_plate addSubview:self.tipsSpeed];
         [_plate addSubview:self.speedLabel];
         [_plate addSubview:self.speedAverageLabel];
         
@@ -408,6 +443,30 @@ typedef enum{
     }
     return _plate;
 }
+
+-(NSTimer *)timer1
+{
+    if (_timer1 == nil) {
+        _timer1 = [NSTimer scheduledTimerWithTimeInterval:10.0
+                                                          target:self
+                                                        selector:@selector(alarmTimerStar1)
+                                                        userInfo:nil
+                                                         repeats:YES];
+        //滚动时不会暂停时钟
+        [[NSRunLoop currentRunLoop] addTimer:_timer1 forMode:NSRunLoopCommonModes];
+    }
+    return _timer1;
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -492,16 +551,16 @@ typedef enum{
 }
 -(void)addWordSubView
 {
-    [self.wordView addSubview:self.label1];
+//    [self.wordView addSubview:self.label1];
     [self.wordView addSubview:self.label2];
     [self.wordView addSubview:self.label3];
-    [self.wordView addSubview:self.TextField1];
+//    [self.wordView addSubview:self.TextField1];
     [self.wordView addSubview:self.TextField2];
     [self.wordView addSubview:self.TextField3];
     [self.wordView addSubview:self.TextField4];
     [self.wordView addSubview:self.button4];
     [self.wordView addSubview:self.button5];
-    [self.wordView addSubview:self.button6];
+//    [self.wordView addSubview:self.button6];
 }
 -(void)hiddenWordSubView
 {
@@ -514,7 +573,7 @@ typedef enum{
     [self.TextField4 removeFromSuperview];
     [self.button4 removeFromSuperview];
     [self.button5 removeFromSuperview];
-    [self.button6 removeFromSuperview];
+//    [self.button6 removeFromSuperview];
 }
 
 -(void)gprsUser5
@@ -528,10 +587,14 @@ typedef enum{
 {
     [self tapPress2:nil];
     [self hiddenWordSubView];
-    
     [self showPate];
-   
-    
+    [self.timer1 fire];
+}
+-(void)gprsUser8
+{
+    [self.timer1 setFireDate:[NSDate distantFuture]];
+    [self.button6 removeFromSuperview];
+    [self.button8 removeFromSuperview];
 }
 -(void)showPate
 {
@@ -565,7 +628,7 @@ typedef enum{
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    
+   
     
     
     [self typOrinig];
@@ -831,11 +894,12 @@ typedef enum{
     [self.mapView removeOverlays:self.mapView.overlays];//移除划的线路
     [self tapPress2:nil];
     [self gprsUser5];
+    [self.mapView addSubview:self.button6];
+    [self.mapView addSubview:self.button8];
     
-    
-    
-    [_geocoder geocodeAddressString:self.TextField1.text completionHandler:
+    [_geocoder reverseGeocodeLocation:_userLocation.location completionHandler:
      ^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
+         
          
          
          
@@ -878,13 +942,13 @@ typedef enum{
         return;
     }
     
-    PointModel *model1,*model2;
+    PointModel *model2;
     
-    model1 = self.pointArray[self.pointArray.count-2];
+    
     model2 = self.pointArray.lastObject;
     
     
-    [_geocoder reverseGeocodeLocation:model1.pointLocation completionHandler:
+    [_geocoder reverseGeocodeLocation:_userLocation.location completionHandler:
      ^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
          
          
@@ -972,7 +1036,7 @@ typedef enum{
         // 收响应结果 MKDirectionsResponse
         // MKRoute 表示的一条完整的路线信息 (从起点到终点) (包含多个步骤)
         
-        self.decesentLabel.text = [NSString stringWithFormat:@"你上班的路程是：%.2f km",destence/1000.0];
+        self.decesentLabel.text = [NSString stringWithFormat:@"J:%.2f km",destence/1000.0];
         
         NSDate  *date = [NSDate date];
         NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
@@ -986,8 +1050,8 @@ typedef enum{
         planWorkTime = [self.TextField3.text floatValue] + [self.TextField4.text  floatValue]/60.0;
         
         
-        self.planWorkSpeed.text = [NSString stringWithFormat:@"你上班的速度：%.2f km/h",(destence/1000.0)/(planWorkTime-currentWorkTime)];
-        
+        self.speedAverageLabel.text = [NSString stringWithFormat:@"AIM:%.2f km/h",(destence/1000.0)/(planWorkTime-currentWorkTime)];
+        planWorkSpeedFloat = (destence/1000.0)/(planWorkTime-currentWorkTime);
         
         //取出最后一条路线
         MKRoute *rute2 = routesArray.lastObject;
@@ -1079,7 +1143,7 @@ typedef enum{
     
     
     [UIView animateWithDuration:0.25 animations:^{
-        self.wordView.frame = CGRectMake(5,(CGRectGetMaxY(self.button3.frame))-60-200, kScreenWith-10, kScreenHeight-260);
+        self.wordView.frame = CGRectMake(5,(CGRectGetMaxY(self.button3.frame))-155, kScreenWith-10, kScreenHeight-260);
     }];
     
     
@@ -1164,7 +1228,7 @@ typedef enum{
             
             speedAverage = speedAverage/(self.speedArray.count);
             
-            self.speedAverageLabel.text =[NSString stringWithFormat:@"%0.1f km/h",speedAverage];
+//            self.speedAverageLabel.text =[NSString stringWithFormat:@"%0.1f km/h",speedAverage];
             [self.speedArray removeAllObjects];
         }
         
@@ -1174,8 +1238,17 @@ typedef enum{
             backGun = 0.3;
         }
         
-        self.plate.alpha = backGun;
+      
         
+        
+        if (planWorkSpeedFloat-speedChina>0) {
+            self.tipsSpeed.text = [NSString stringWithFormat:@"-%.2f",(planWorkSpeedFloat-speedChina)];
+            self.tipsSpeed.textColor = [UIColor redColor];
+        }else  if(speedChina-planWorkSpeedFloat>0){
+            self.tipsSpeed.text = [NSString stringWithFormat:@"+%.2f",(speedChina-planWorkSpeedFloat)];
+            self.tipsSpeed.textColor = [UIColor greenColor];
+        }
+
         
     }
     
@@ -1184,7 +1257,10 @@ typedef enum{
     
     
 }
-
+-(void)alarmTimerStar1
+{
+    [self gprsUser4];
+}
 
 
 
