@@ -11,6 +11,7 @@
 		E364E4211EA8ACB2005A351A /* LocalNameTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E364E41F1EA8ACB2005A351A /* LocalNameTableViewCell.xib */; };
 		E364E4241EA8C07A005A351A /* YYAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = E364E4231EA8C07A005A351A /* YYAnnotation.m */; };
 		E364E4271EA8DAD3005A351A /* PointModel.m in Sources */ = {isa = PBXBuildFile; fileRef = E364E4261EA8DAD3005A351A /* PointModel.m */; };
+		E364E4531EAEEF52005A351A /* NSArray+Log.m in Sources */ = {isa = PBXBuildFile; fileRef = E364E4521EAEEF52005A351A /* NSArray+Log.m */; };
 		E3DF726B1EA75BFA0018AE45 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E3DF726A1EA75BFA0018AE45 /* main.m */; };
 		E3DF726E1EA75BFA0018AE45 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E3DF726D1EA75BFA0018AE45 /* AppDelegate.m */; };
 		E3DF72761EA75BFA0018AE45 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E3DF72751EA75BFA0018AE45 /* Assets.xcassets */; };
@@ -31,6 +32,8 @@
 		E364E4231EA8C07A005A351A /* YYAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YYAnnotation.m; sourceTree = "<group>"; };
 		E364E4251EA8DAD3005A351A /* PointModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointModel.h; sourceTree = "<group>"; };
 		E364E4261EA8DAD3005A351A /* PointModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PointModel.m; sourceTree = "<group>"; };
+		E364E4511EAEEF52005A351A /* NSArray+Log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+Log.h"; sourceTree = "<group>"; };
+		E364E4521EAEEF52005A351A /* NSArray+Log.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Log.m"; sourceTree = "<group>"; };
 		E3DF72661EA75BFA0018AE45 /* SCMap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SCMap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3DF726A1EA75BFA0018AE45 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		E3DF726C1EA75BFA0018AE45 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../AppDelegate.h; sourceTree = "<group>"; };
@@ -155,6 +158,8 @@
 		E3DF72841EA75C960018AE45 /* other */ = {
 			isa = PBXGroup;
 			children = (
+				E364E4511EAEEF52005A351A /* NSArray+Log.h */,
+				E364E4521EAEEF52005A351A /* NSArray+Log.m */,
 				E3DF726C1EA75BFA0018AE45 /* AppDelegate.h */,
 				E3DF726D1EA75BFA0018AE45 /* AppDelegate.m */,
 			);
@@ -237,6 +242,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E3DF726E1EA75BFA0018AE45 /* AppDelegate.m in Sources */,
+				E364E4531EAEEF52005A351A /* NSArray+Log.m in Sources */,
 				E3DF728D1EA763E20018AE45 /* PlateViewController.m in Sources */,
 				E364E4271EA8DAD3005A351A /* PointModel.m in Sources */,
 				E364E4241EA8C07A005A351A /* YYAnnotation.m in Sources */,
