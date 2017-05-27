@@ -13,6 +13,7 @@
 #import "LocalNameTableViewCell.h"
 #import "YYAnnotation.h"
 #import "PointModel.h"
+#import "SCTableViewCell.h"
 
 #define kScreenWith ([UIScreen mainScreen].bounds.size.width)
 #define kScreenHeight ([UIScreen mainScreen].bounds.size.height)
@@ -50,6 +51,8 @@ typedef enum{
 @property(nonatomic,strong)UIButton *button6;
 @property(nonatomic,strong)UIButton *button7;
 @property(nonatomic,strong)UIButton *button8;
+@property(nonatomic,strong)UIButton *button9;
+@property(nonatomic,strong)UIButton *button10;
 @property(nonatomic,strong)UIView *navigationHeadView;
 @property(nonatomic,strong)CLGeocoder *geocoder;//地理编码工具
 @property(nonatomic,strong)UILabel *headLabel;
@@ -80,6 +83,8 @@ typedef enum{
 @property(nonatomic,strong)UIView *plate;
 @property(nonatomic,strong)UILabel *tipsSpeed;
 @property(nonatomic,strong)NSTimer *timer1;
+@property(nonatomic,strong)UITableView *tableView2;
+@property(nonatomic,strong)NSMutableArray *localationArray;
 @end
 
 @implementation MainViewController
@@ -193,6 +198,35 @@ typedef enum{
     }
     return _button7;
 }
+-(UIButton *)button9
+{
+    if (_button9 == nil) {
+        _button9 = [UIButton buttonWithType:UIButtonTypeSystem];
+        _button9.backgroundColor = [UIColor colorWithRed:5.0/255 green:124.0/255 blue:255.0/255 alpha:1.0];
+        _button9.frame = CGRectMake((kScreenWith-10)/2-80/2, 70+160+90, 80,80);
+        _button9.layer.cornerRadius = 40;
+        [_button9 setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [_button9 setTitle:@"保存记录" forState:UIControlStateNormal];
+        [_button9 addTarget:self action:@selector(saveRecord) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _button9;
+}
+-(UIButton *)button10
+{
+    if (_button10 == nil) {
+        _button10 = [UIButton buttonWithType:UIButtonTypeSystem];
+//        _button10.backgroundColor = [UIColor colorWithRed:5.0/255 green:124.0/255 blue:255.0/255 alpha:1.0];
+        _button10.frame = CGRectMake(kScreenWith - 40,64+5+10+35+10+35+10+35+10+35,35, 35);
+        _button10.layer.cornerRadius = 40;
+        [_button10 setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [_button10 setImage:[UIImage imageNamed:@"left_footprint"] forState:UIControlStateNormal];
+        [_button10 setTitle:@"打开记录" forState:UIControlStateNormal];
+        [_button10 addTarget:self action:@selector(openRecord) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _button10;
+}
+
+
 
 -(UIView *)navigationHeadView
 {
@@ -227,6 +261,7 @@ typedef enum{
         _tableView.delegate = self;
         _tableView.dataSource = self;
         _tableView.separatorStyle = NO;
+        _tableView.tag = 1;
         
         UISwipeGestureRecognizer *swipwe = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swiweLift:)];
         swipwe.direction = UISwipeGestureRecognizerDirectionLeft;
@@ -235,6 +270,22 @@ typedef enum{
     }
     return _tableView;
 }
+-(UITableView *)tableView2
+{
+    if (_tableView2 == nil) {
+        _tableView2 = [[UITableView alloc] initWithFrame:CGRectMake(0, 40, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height-40-50)];
+        _tableView2.delegate = self;
+        _tableView2.dataSource = self;
+        _tableView2.tag = 2;
+        
+        UISwipeGestureRecognizer *swipwe = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swiweLift:)];
+        swipwe.direction = UISwipeGestureRecognizerDirectionLeft;
+        [self.tableView2 addGestureRecognizer:swipwe];
+        
+    }
+    return _tableView2;
+}
+
 -(NSMutableArray *)nameArray
 {
     if (_nameArray == nil) {
@@ -457,11 +508,69 @@ typedef enum{
     }
     return _timer1;
 }
+-(NSMutableArray *)localationArray
+{
+    if (_localationArray == nil) {
+        
+        NSData *data = [NSData dataWithContentsOfFile:[self pathUSER]];
+        _localationArray = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+        
+        if (_localationArray == nil) {
+            _localationArray = [NSMutableArray array];
+        }
+        
+    }
+    return _localationArray;
+}
+-(void)openRecord
+{
+    [self.view addSubview:self.tableView2];
+    
+    CGRect fream2;
+    fream2 = self.tableView2.frame;
+    fream2.origin.y = -[UIScreen mainScreen].bounds.size.height;
+    self.tableView2.frame = fream2;
+    
+    [UIView animateWithDuration:0.25 animations:^{
+        CGRect fream2;
+        fream2 = self.tableView2.frame;
+        fream2.origin.y = 40;
+        self.tableView2.frame = fream2;
+    }];
+    
+    
+}
+-(void)saveRecord
+{
+    
+    if (self.TextField2.text == nil||self.TextField3 == nil||self.TextField4==nil) {
+        return;
+    }
+    
+    NSDictionary *dict = @{@"localation":self.TextField2.text,
+                           @"hour":self.TextField3.text,
+                           @"mim" :self.TextField4.text,
+                           };
+    [self.localationArray addObject:dict];
+    
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self.localationArray];
+    [data writeToFile:[self pathUSER] atomically:NO];
+    
+}
 
-
-
-
-
+-(NSString*)pathUSER
+{
+    NSArray *pathArray =  NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *path1 = pathArray.firstObject;
+    NSString *path2 = [path1 stringByAppendingPathComponent:@"USER_information"];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path2] ) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:path2 withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+    
+    path2 = [path2 stringByAppendingPathComponent:@"user.data"];
+    
+    return path2;
+}
 
 
 
@@ -476,7 +585,24 @@ typedef enum{
     if (swipe.direction == UISwipeGestureRecognizerDirectionLeft) {
         NSLog(@"UISwipeGestureRecognizerDirectionLeft");
         [self hiddenTabVie];
-    }
+        [self hiddenTableView2];
+        
+     }
+}
+-(void)hiddenTableView2
+{
+    CGRect fream2;
+    fream2 = self.tableView2.frame;
+    fream2.origin.y = -[UIScreen mainScreen].bounds.size.height;
+    
+    [UIView animateWithDuration:0.25 animations:^{
+        
+        self.tableView2.frame = fream2;
+    } completion:^(BOOL finished) {
+        [self.tableView2 removeFromSuperview];
+    }];
+    
+
 }
 -(void)hiddenTabVie
 {
@@ -498,6 +624,7 @@ typedef enum{
     [self.view bringSubviewToFront:self.button2];
     [self.view bringSubviewToFront:self.button3];
     [self.view bringSubviewToFront:self.button7];
+    [self.view bringSubviewToFront:self.button10];
     [self.view bringSubviewToFront:self.navigationHeadView];
     self.tableView.frame = CGRectMake(0,65, kScreenWith, 0);
     [UIView animateWithDuration:0.25 animations:^{
@@ -560,6 +687,7 @@ typedef enum{
     [self.wordView addSubview:self.TextField4];
     [self.wordView addSubview:self.button4];
     [self.wordView addSubview:self.button5];
+    [self.wordView addSubview:self.button9];
 //    [self.wordView addSubview:self.button6];
 }
 -(void)hiddenWordSubView
@@ -573,6 +701,7 @@ typedef enum{
     [self.TextField4 removeFromSuperview];
     [self.button4 removeFromSuperview];
     [self.button5 removeFromSuperview];
+    [self.button9 removeFromSuperview];
 //    [self.button6 removeFromSuperview];
 }
 
@@ -665,6 +794,7 @@ typedef enum{
     [self.view addSubview:self.button2];
     [self.view addSubview:self.button3];
     [self.view addSubview:self.button7];
+    [self.view addSubview:self.button10];
     
     [self performSelector:@selector(gprsUser1) withObject:nil afterDelay:2.0];
     [self.view addSubview:self.navigationHeadView];
@@ -1100,25 +1230,62 @@ typedef enum{
 #pragma mark - UITableViewDataSource
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return self.nameArray.count;
+    
+    if (tableView.tag == 1) {
+        return self.nameArray.count;
+    }else if(tableView.tag == 2){
+        return self.localationArray.count;
+    }
+    
+    return 0;
 }
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    LocalNameTableViewCell *cell = [LocalNameTableViewCell LocalNameTableViewCellWithTableView:tableView];
     
-    cell.dresssnName = self.nameArray[self.nameArray.count-1-indexPath.row];
-    cell.selectionStyle =  UITableViewCellSelectionStyleNone;
-    return cell;
+    if (tableView.tag == 1) {
+        
+        LocalNameTableViewCell *cell = [LocalNameTableViewCell LocalNameTableViewCellWithTableView:tableView];
+        
+        cell.dresssnName = self.nameArray[self.nameArray.count-1-indexPath.row];
+        cell.selectionStyle =  UITableViewCellSelectionStyleNone;
+        return cell;
+    }else if (tableView.tag == 2) {
+        SCTableViewCell *cell = [SCTableViewCell SCTableViewCellAndTableView:tableView];
+        [cell laction:self.localationArray[indexPath.row]];
+        return cell;
+    }
+    
+    return 0;
 }
 
 #pragma mark - UITableViewDelegate
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    
+
     NSLog(@"你点击了第行 = %ld",(long)indexPath.row);
+    if (tableView.tag == 2) {
+        NSDictionary *dict = self.localationArray[indexPath.row];
+        self.TextField2.text = dict[@"localation"];
+        self.TextField3.text = dict[@"hour"];
+        self.TextField4.text = dict[@"mim"];
+        
+        [self hiddenTableView2];
+        [self gprsUser4];
+        
+    }
+    
+    
 }
 -(CGFloat )tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 25;
+    if (tableView.tag == 1) {
+        return 25;
+    }else if (tableView.tag == 2){
+        return 44;
+    }
+    
+    return 0;
 }
 //获取当前的tableView的offset
 -(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
