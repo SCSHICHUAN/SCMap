@@ -542,6 +542,7 @@ typedef enum{
 }
 -(void)saveRecord
 {
+    [self.tableView2 reloadData];
     
     if (self.TextField2.text == nil||self.TextField3 == nil||self.TextField4==nil) {
         return;
@@ -1303,6 +1304,45 @@ typedef enum{
     }];
     
 }
+
+-(NSArray<UITableViewRowAction *> *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    if (tableView.tag == 2) {
+        
+        UITableViewRowAction *deleteRowAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDestructive title:@"删除" handler:^(UITableViewRowAction * _Nonnull action, NSIndexPath * _Nonnull indexPath) {
+            
+            [self.localationArray removeObjectAtIndex:indexPath.row];
+            [self.tableView2 deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationRight];
+            
+            NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self.localationArray];
+            [data writeToFile:[self pathUSER] atomically:NO];
+            
+            
+            
+            NSLog(@"删除");
+        }];
+        
+        
+        return @[deleteRowAction];
+    }
+    
+  
+    return 0;
+    
+    
+
+    
+    
+}
+
+
+
+
+
+
+
+
 #pragma mark -UITextFieldDelegate
 -(void)textFieldDidBeginEditing:(UITextField *)textField
 {
